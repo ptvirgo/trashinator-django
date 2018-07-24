@@ -49,3 +49,19 @@ class TestTrash(TestCase):
         low = FuzzyInteger(-10, 0)
         household = HouseHoldFactory(population=low)
         self.assertRaises(ValidationError, household.clean_fields)
+
+    def test_trash_profile_current_houshold_owner(self):
+        """
+        TrashProfile user and TrashProfile.household.user must be
+        identical
+        """
+        # current_household with the same user is fine
+        profile1 = TrashProfileFactory()
+        new_household = HouseHoldFactory(user=profile1.user)
+        profile1.current_household = new_household
+        profile1.clean()
+
+        # current_household with a different user raises ValidationError
+        profile2 = TrashProfileFactory()
+        profile1.current_household = profile2.current_household
+        self.assertRaises(ValidationError, profile1.clean)

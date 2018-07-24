@@ -37,6 +37,10 @@ class TrashProfile(models.Model):
         "HouseHold", on_delete=models.PROTECT, related_name="active_profile")
     system = models.CharField(max_length=1, choices=SYSTEM_CHOICES)
 
+    def clean(self):
+        if self.current_household.user.pk != self.user.pk:
+            raise ValidationError(
+                "current_household cannot belong to someone else")
 
 class HouseHold(models.Model):
     """
