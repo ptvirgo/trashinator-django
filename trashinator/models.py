@@ -4,17 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 
-# Validators
-
-
-def zero_or_more(num):
-    if not num >= 0:
-        raise ValidationError("must be >= 0")
-
-
-def one_or_more(num):
-    if not num >= 1:
-        raise ValidationError("must be >= 1")
+from .validators import zero_or_more, one_or_more
 
 # Model choices
 
