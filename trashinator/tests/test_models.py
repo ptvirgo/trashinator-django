@@ -1,6 +1,7 @@
 from datetime import date
 from factory.fuzzy import FuzzyFloat, FuzzyInteger
 
+from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
@@ -29,20 +30,29 @@ class TestTrash(TestCase):
                                           date=date(2018, 1, 1))
         same_user_diff_day.validate_unique()
 
-        # Same user same day should be invalid
-        same_user_same_day = TrashFactory(household=profile.current_household)
-        self.assertRaises(ValidationError, same_user_same_day.validate_unique)
-
-        # Same same day with different household is still invalid
+        # Same same day with different household is invalid
         new_house = HouseHoldFactory(user=profile.user)
         why = TrashFactory(household=new_house)
         self.assertRaises(ValidationError, why.clean)
 
+        # Same user same day should be invalid
+        self.assertRaises(IntegrityError, TrashFactory,
+                          **{"household": profile.current_household})
+
     def test_trash_volume_validation(self):
         """Trash volume cannot be below 0"""
         low = FuzzyFloat(-10, -0.1)
-        trash = TrashFactory(volume=low)
+        trash = TrashFactory(gallons=low)
         self.assertRaises(ValidationError, trash.clean_fields)
+
+    def test_trash_volume_conversions(self):
+        """Trash volume can be read in gallons or litres"""
+        trash = TrashFactory()
+        trash.litres = 5
+        self.assertEqual(trash.litres, 5.0)
+        trash.gallons = 2.5
+        self.assertEqual(trash.gallons, 2.5)
+        self.assertEqual(trash.litres / 3.785411784, trash.gallons)
 
     def test_household_population_validation(self):
         """Household size cannot be below 1"""

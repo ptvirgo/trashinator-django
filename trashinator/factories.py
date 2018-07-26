@@ -39,4 +39,4 @@ class TrashFactory(factory.django.DjangoModelFactory):
 
     date = date.today()
     household = factory.SubFactory("trashinator.factories.HouseHoldFactory")
-    volume = factory.fuzzy.FuzzyFloat(0, 13)
+    gallons = factory.fuzzy.FuzzyFloat(0, 13)

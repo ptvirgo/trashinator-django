@@ -1,3 +1,4 @@
+import datetime
 import pycountry
 
 from django.db import models
@@ -9,7 +10,7 @@ from .validators import zero_or_more, one_or_more
 # Model choices
 
 
-SYSTEM_CHOICES = (("I", "Imperial"), ("M", "Metric"))
+SYSTEM_CHOICES = (("U", "US"), ("M", "Metric"))
 COUNTRY_CHOICES = tuple((c.alpha_3, c.name) for c in pycountry.countries)
 
 # Models
@@ -26,6 +27,8 @@ class TrashProfile(models.Model):
     current_household = models.OneToOneField(
         "HouseHold", on_delete=models.PROTECT, related_name="active_profile")
     system = models.CharField(max_length=1, choices=SYSTEM_CHOICES)
+
+    created = models.DateField(default=datetime.date.today)
 
     def clean(self):
         if self.current_household.user.pk != self.user.pk:
@@ -45,13 +48,13 @@ class HouseHold(models.Model):
 
 class Trash(models.Model):
     """
-    Trash records keep track of actual volume.  Stored in gallons.
+    Trash records keep track of actual volume.  Stored in litres.
     """
     class Meta:
         unique_together = (("date", "household"))
     date = models.DateField()
     household = models.ForeignKey("HouseHold", on_delete=models.PROTECT)
-    volume = models.FloatField(validators=[zero_or_more])
+    _volume = models.FloatField(validators=[zero_or_more])
 
     def clean(self):
         user = self.household.user
@@ -61,3 +64,18 @@ class Trash(models.Model):
         if conflicts.exists():
             raise ValidationError(
                 "can't have multiple trash records for same user on same day")
+    @property
+    def litres(self):
+        return self._volume
+
+    @litres.setter
+    def litres(self, litres):
+        self._volume = litres
+
+    @property
+    def gallons(self):
+        return self._volume / 3.785411784
+
+    @gallons.setter
+    def gallons(self, gallons):
+        self._volume = gallons * 3.785411784

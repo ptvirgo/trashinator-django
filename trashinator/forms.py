@@ -6,7 +6,7 @@ from .validators import zero_or_more, one_or_more
 
 class TrashProfileForm(forms.Form):
     system = forms.ChoiceField(
-        choices=SYSTEM_CHOICES, label="Measurement system", initial="I")
+        choices=SYSTEM_CHOICES, label="Measurement system", initial="U")
     country = forms.ChoiceField(
         choices=COUNTRY_CHOICES, label="Country", initial="USA")
     population = forms.IntegerField(
@@ -19,8 +19,8 @@ class TrashForm(forms.Form):
         Prepare a Trash form.
 
         Args:
-        system: "imperial" or "metric," determines whether label will read
-        "gallons" or "liters"
+        system: "US" or "metric," determines whether label will read
+        "gallons" or "litres"
 
         dates: list of datetime.dates for which the user should provide
         estimates
@@ -32,7 +32,7 @@ class TrashForm(forms.Form):
             raise ValueError(
                 "TrashForm supports 1 - 3 dates, got " + len(dates))
 
-        if system == "imperial":
+        if system == "US":
             unit = "gallon"
         else:
             unit = "litre"
