@@ -35,6 +35,7 @@ class TrashProfile(models.Model):
             raise ValidationError(
                 "current_household cannot belong to someone else")
 
+
 class HouseHold(models.Model):
     """
     HouseHold describes minimal population and location data for Trash records,
@@ -64,6 +65,7 @@ class Trash(models.Model):
         if conflicts.exists():
             raise ValidationError(
                 "can't have multiple trash records for same user on same day")
+
     @property
     def litres(self):
         return self._volume

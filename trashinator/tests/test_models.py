@@ -32,12 +32,13 @@ class TestTrash(TestCase):
 
         # Same same day with different household is invalid
         new_house = HouseHoldFactory(user=profile.user)
-        why = TrashFactory(household=new_house)
+        why = TrashFactory(household=new_house, date=first.date)
         self.assertRaises(ValidationError, why.clean)
 
         # Same user same day should be invalid
-        self.assertRaises(IntegrityError, TrashFactory,
-                          **{"household": profile.current_household})
+        self.assertRaises(
+            IntegrityError, TrashFactory,
+            **{"household": profile.current_household, "date": first.date})
 
     def test_trash_volume_validation(self):
         """Trash volume cannot be below 0"""

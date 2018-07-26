@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from .models import TrashProfile, HouseHold, Trash
-from .forms import TrashProfileForm, TrashForm
+from .models import TrashProfile, HouseHold
+from .forms import TrashProfileForm
 
 
 class TrashProfileView(LoginRequiredMixin, View):

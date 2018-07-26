@@ -1,11 +1,12 @@
 import datetime
 import random
+from unittest import skip
 
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from ..models import Trash
-from ..factories import TrashProfileFactory
+from ..factories import TrashProfileFactory, TrashFactory
 
 
 class TestSubmitProfile(TestCase):
@@ -40,6 +41,7 @@ class TestSubmitProfile(TestCase):
 
 class TestSubmitTrash(TestCase):
 
+    @skip("trash records are handled via graphql, not forms atm")
     def test_post_trash(self):
         """Trash can be created via POST"""
         profile = TrashProfileFactory(system="U")
@@ -56,6 +58,7 @@ class TestSubmitTrash(TestCase):
 
         self.assertEqual(record.gallons, test_data[today])
 
+    @skip("trash records are handled via graphql, not forms atm")
     def test_post_metric(self):
         """Trash posts with metric system are converted"""
         profile = TrashProfileFactory(system="M")
@@ -72,6 +75,7 @@ class TestSubmitTrash(TestCase):
 
         self.assertEqual(record.litres, test_data[today])
 
+    @skip("trash records are handled via graphql, not forms atm")
     def test_backdate_trash_forms(self):
         """
         Trash forms are back-dated up to three days when records are missing.
@@ -81,7 +85,7 @@ class TestSubmitTrash(TestCase):
         two_days_ago = yesterday - datetime.timedelta(1)
         five_days_ago = today - datetime.timedelta(5)
         one_week_ago = today - datetime.timedelta(7)
-        
+
         profile = TrashProfileFactory(created=one_week_ago)
 
         client = Client()
@@ -103,9 +107,12 @@ class TestSubmitTrash(TestCase):
 
         response = client.get(reverse("trashinator:trash"))
         self.assertEqual(response.status, 200)
-        self.assertDoesNotContain(response, yesterday.isoformat(),
+        self.assertDoesNotContain(
+            response, yesterday.isoformat(),
             msg="failed to remove request for available record")
-        self.assertContains(response, today.isoformat(),
+        self.assertContains(
+            response, today.isoformat(),
             msg="today's record should always be editable")
-        self.assertContains(response, two_days_ago.isoformat(),
+        self.assertContains(
+            response, two_days_ago.isoformat(),
             msg="missing record from two days ago should be requested")
