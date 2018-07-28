@@ -19,10 +19,10 @@ class TestGraphql(TestCase):
         old_house = HouseHoldFactory(user=profile.user)
 
         current_trash = [TrashFactory(household=profile.current_household)
-                         for i in range(random.randint(1, 3))]
+                         for _ in range(random.randint(1, 3))]
 
         old_trash = [TrashFactory(household=old_house)
-                     for i in range(random.randint(1, 3))]
+                     for _ in range(random.randint(1, 3))]
 
         TrashFactory()  # don't pick up other people's trash
 
