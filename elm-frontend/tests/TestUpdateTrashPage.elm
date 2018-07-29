@@ -34,9 +34,9 @@ suite = describe "Test UpdateRecordPage"
             ( updateTrashPage (ChangeAmount txt) testPage )
             ( newPage, Cmd.none)
 
-    , fuzz string "ChangeAmount rejects text strings" <| \txt ->
+    , test "ChangeAmount rejects text strings" <| \_ ->
         let newPage = { testPage | error = Just "Amount must be a number" }
         in Expect.equal
-            ( updateTrashPage (ChangeAmount txt) testPage )
+            ( updateTrashPage (ChangeAmount "oops") testPage )
             ( newPage, Cmd.none )
     ]

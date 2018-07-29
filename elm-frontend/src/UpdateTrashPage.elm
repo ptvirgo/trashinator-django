@@ -1,4 +1,5 @@
 module UpdateTrashPage exposing (..)
+
 import Models exposing (..)
 
 type Msg = ChangeAmount String
