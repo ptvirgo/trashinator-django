@@ -8,7 +8,7 @@ import Models exposing (..)
 import UpdateTrashPage exposing (..)
 
 viewTrashPage : TrashPage -> Html Msg
-viewTrashPage page = Html.form [ id "trashForm" ]
+viewTrashPage page = Html.div [ id "trashPage" ]
     [ viewTrash page.trash
     , viewError page.error
     ]
@@ -20,7 +20,10 @@ viewTrash trashState = case trashState of
         [ p [ class "status" ]
             [ text <| "I took out " ++ sayAmount trash.amount ++ " today." ]
         , p [ id "inputTrashAmount" ]
-            [ input [ placeholder "how much?", onInput ChangeAmount ] []
+            [ input
+                [ placeholder <| toString <| amountVolume trash.amount
+                , onInput ChangeAmount ]
+                []
             , text <| " " ++ (amountWord trash.amount) ++ "s of trash"
             ]
         ]
@@ -36,6 +39,11 @@ amountWord : Amount -> String
 amountWord amt = case amt of
     (Gallons _) -> "gallon"
     (Litres _) -> "litre"
+
+amountVolume : Amount -> Float
+amountVolume amt = case amt of
+    (Gallons x) -> x
+    (Litres x) -> x
 
 sayAmount : Amount -> String
 sayAmount amt =

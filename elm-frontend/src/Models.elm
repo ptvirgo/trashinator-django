@@ -12,6 +12,7 @@ type alias Trash =
 type alias TrashPage =
     { trash : Maybe Trash 
     , error : Maybe String
+    , token : String
     }
 
 emptyTrash : Trash

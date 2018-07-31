@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+
+from user_extensions import utils
 
 from .models import TrashProfile, HouseHold
 from .forms import TrashProfileForm
@@ -62,3 +64,22 @@ class TrashProfileView(LoginRequiredMixin, View):
             household.save()
 
         return household
+
+class TrashElmView(LoginRequiredMixin, View):
+    template_name = "trashinator/trash_elm_interface.html"
+
+    def get(self, request, *args, **kwargs):
+
+        if not hasattr(request.user, "trash_profile"):
+            return redirect("trashinator:profile")
+
+        flags = {}
+
+        print("I got your profile: %s" % (request.user.trash_profile.system))
+        if request.user.trash_profile.system == "U":
+            flags["metric"] = "gallons"
+        else:
+            flags["metric"] = "litres"
+
+        flags["token"]  = utils.user_jwt(request.user)
+        return render(request, self.template_name, flags)
