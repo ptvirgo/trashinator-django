@@ -65,6 +65,7 @@ class TrashProfileView(LoginRequiredMixin, View):
 
         return household
 
+
 class TrashElmView(LoginRequiredMixin, View):
     template_name = "trashinator/trash_elm_interface.html"
 
@@ -81,5 +82,5 @@ class TrashElmView(LoginRequiredMixin, View):
         else:
             flags["metric"] = "litres"
 
-        flags["token"]  = utils.user_jwt(request.user)
+        flags["token"] = utils.user_jwt(request.user)
         return render(request, self.template_name, flags)

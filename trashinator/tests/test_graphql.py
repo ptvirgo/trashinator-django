@@ -1,3 +1,4 @@
+import datetime
 import graphene
 import random
 from unittest import skip
@@ -7,6 +8,7 @@ from django.test import TestCase
 from user_extensions import utils
 
 from ..factories import TrashProfileFactory, HouseHoldFactory, TrashFactory
+from ..models import Trash
 from ..schema import TrashQuery, TrashMutation
 
 
@@ -15,7 +17,6 @@ class TestGraphql(TestCase):
 
     def test_read_all_trash(self):
         """User can retrieve all trash records"""
-
         profile = TrashProfileFactory()
         old_house = HouseHoldFactory(user=profile.user)
 
@@ -26,10 +27,12 @@ class TestGraphql(TestCase):
                      for _ in range(random.randint(1, 3))]
 
         TrashFactory()  # don't pick up other people's trash
+        test_data = {"token": utils.user_jwt(profile.user)}
 
-        query = """{allTrash(token: "%s"){date litres gallons}}""" %\
-            (utils.user_jwt(profile.user),)
-        result = self.schema.execute(query)
+        query = """query AllTrash($token: String!){
+            allTrash(token: $token){date litres gallons}}"""
+
+        result = self.schema.execute(query, variable_values=test_data)
 
         if result.errors:
             raise AssertionError(result.errors)
@@ -41,12 +44,17 @@ class TestGraphql(TestCase):
         """User can retrieve a single trash record"""
         profile = TrashProfileFactory()
         trash = TrashFactory(household=profile.current_household)
-        TrashFactory(date=trash.date)  # don't pick up other people's trash
 
-        query = """{trash(token: "%s", date: "%s"){date gallons}}""" %\
-            (utils.user_jwt(profile.user), trash.date.isoformat())
+        # make sure we don't pick up other people's trash
+        TrashFactory(date=trash.date)
 
-        result = self.schema.execute(query)
+        test_data = {"token": utils.user_jwt(profile.user),
+                     "date": trash.date.isoformat()}
+
+        query = """query TrashQuery($token: String!, $date: Date!){
+                   trash(token: $token, date: $date){date gallons}}"""
+
+        result = self.schema.execute(query, variable_values=test_data)
 
         if result.errors:
             raise AssertionError(result.errors)
@@ -74,3 +82,34 @@ class TestGraphql(TestCase):
 
         if result.errors:
             raise AssertionError(result.errors)
+
+    def test_save_trash(self):
+        """Trash can be saved"""
+        profile = TrashProfileFactory()
+
+        test_data = {
+            "date": datetime.date.today().isoformat(),
+            "metric": "Gallons",
+            "volume": float(random.randint(1, 10)),
+            "token": utils.user_jwt(profile.user)
+        }
+
+        query = """mutation
+            SaveTrash($date: Date!, $token: String!, $metric: Metric!,
+                      $volume: Float){
+            saveTrash(date: $date, metric: $metric, volume: $volume,
+                      token: $token){
+            trash { date gallons }}}"""
+
+        result = self.schema.execute(query, variable_values=test_data)
+
+        if result.errors:
+            raise AssertionError(result.errors)
+
+        self.assertEqual(
+            result.data["saveTrash"]["trash"]["gallons"], test_data["volume"])
+
+        lookup = Trash.objects.get(
+            household=profile.current_household, date=test_data["date"])
+
+        self.assertEqual(lookup.gallons, test_data["volume"])
