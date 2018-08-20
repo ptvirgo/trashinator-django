@@ -76,7 +76,7 @@ class Trash(models.Model):
 
     @property
     def gallons(self):
-        return self._volume / 3.785411784
+        return round(self._volume / 3.785411784, 2)
 
     @gallons.setter
     def gallons(self, gallons):

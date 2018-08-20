@@ -113,3 +113,36 @@ class TestGraphql(TestCase):
             household=profile.current_household, date=test_data["date"])
 
         self.assertEqual(lookup.gallons, test_data["volume"])
+
+    def test_resave_trash(self):
+        """Trash can be overwritten"""
+        
+        profile = TrashProfileFactory()
+        trash = TrashFactory(household = profile.current_household)
+
+        test_data = {
+            "date": datetime.date.today().isoformat(),
+            "metric": "Litres",
+            "volume": float(random.randint(1, 10)),
+            "token": utils.user_jwt(profile.user)
+        }
+
+        query = """mutation
+            SaveTrash($date: Date!, $token: String!, $metric: Metric!,
+                      $volume: Float){
+            saveTrash(date: $date, metric: $metric, volume: $volume,
+                      token: $token){
+            trash { date litres }}}"""
+
+        result = self.schema.execute(query, variable_values=test_data)
+
+        if result.errors:
+            raise AssertionError(result.errors)
+
+        self.assertEqual(
+            result.data["saveTrash"]["trash"]["litres"], test_data["volume"])
+
+        lookup = Trash.objects.get(
+            household=profile.current_household, date=test_data["date"])
+
+        self.assertEqual(lookup.litres, test_data["volume"])

@@ -9,8 +9,8 @@
 <script src="/static/trashinator/elm-trash.js"></script>
 <script type="text/javascript">
 var elmDiv = document.getElementById("trash");
-var timeStamp = (new Date).getTime();
-var app = Elm.TrashPageMain.embed(
-    elmDiv, { token: "{{ token }}", metric: "{{ metric }}", timeStamp: timeStamp });
+var timestamp = (new Date).getTime();
+var app = Elm.Main.embed(
+    elmDiv, { token: "{{ token }}", metric: "{{ metric }}", timestamp: timestamp });
 </script>
 {% endblock scripts %}

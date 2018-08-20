@@ -24,7 +24,8 @@ class TrashNode(DjangoObjectType):
 
 
 class TrashQuery(graphene.ObjectType):
-    all_trash = graphene.List(TrashNode, token=graphene.String(required=True))
+    all_trash = graphene.List(TrashNode, token=graphene.String(required=True),
+                              required=True)
     trash = graphene.Field(
         TrashNode,
         date=graphene.types.datetime.Date(required=True),
@@ -54,7 +55,7 @@ class Metric(graphene.Enum):
 
 
 class SaveTrash(graphene.Mutation):
-    trash = graphene.Field(TrashNode)
+    trash = graphene.Field(TrashNode, required=True)
 
     class Arguments:
         token = graphene.String(required=True)
@@ -73,11 +74,10 @@ class SaveTrash(graphene.Mutation):
         except Trash.DoesNotExist:
             trash = Trash(
                 household=user.trash_profile.current_household,
-                date=datetime.date.today(),
+                date=date,
                 litres=0)
 
         if volume is not None:
-
             if metric == Metric.Gallons:
                 trash.gallons = volume
             elif metric == Metric.Litres:

@@ -1,0 +1,7 @@
+{
+  "name": "trashinator-graphqelm-project",
+  "version": "0.1.0",
+  "scripts": {
+    "api": "graphqelm http://localhost:8000/graphql/ --base Trash"
+  }
+}
