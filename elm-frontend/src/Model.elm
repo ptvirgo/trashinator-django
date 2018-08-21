@@ -62,6 +62,7 @@ type alias TrashPage =
     , metric : Metric
     , volume : Maybe Float
     , error : Maybe String
+    , changed : Bool
     }
 
 {-| Empty TrashPage for testing and initialization |-}
@@ -73,6 +74,7 @@ emptyPage =
     , metric = Gallons
     , volume = Nothing
     , error = Nothing
+    , changed = False
     }
 
 {-| Model -}

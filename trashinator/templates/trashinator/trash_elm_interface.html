@@ -1,8 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block style %}
+<link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Slab" rel="stylesheet"> 
+<link rel="stylesheet" type="text/css" href="{% static "trashinator/save_trash.css" %}" />
+{% endblock style %}
+
+
 {% block content %}
+<main>
+<img src="/static/trashinator/trash_can.svg" alt="trash can" id="mascot" />
 <div id="trash"></div>
+</main>
 {% endblock content %}
 
 {% block scripts %}

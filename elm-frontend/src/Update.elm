@@ -37,19 +37,22 @@ changeAmount txt model = case String.toFloat txt of
             then
                 { model | volume = Nothing
                 , error = Nothing
+                , changed = True
                 }
             else
                 { model | volume = Nothing
                 , error = Just "Amount must be a number"
+                , changed = True
                 }
     (Ok x) ->
         if x < 0
             then
                 { model | volume = Nothing
                 , error = Just "Amount must be 0 or more"
+                , changed = True
                 }
             else
-                { model | volume = Just x, error = Nothing }
+                { model | volume = Just x, error = Nothing, changed = True }
 
 
 -- Handle Responses
@@ -62,7 +65,8 @@ gotResponse r model = case r of
         }
     (Ok response) -> case response.trash of
         Nothing -> { model | volume = Nothing, error = Just "Failed to save!" }
-        (Just trash) -> { model | volume = trashVolume trash model.metric }
+        (Just trash) ->
+            { model | volume = trashVolume trash model.metric, changed = False }
 
 responseErrorMessage : Graphqelm.Http.Error Response -> String
 responseErrorMessage error = case error of

@@ -18,8 +18,8 @@ type alias Flags =
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-    let readMetric s = case s of
-            "Litres" -> Litres
+    let readMetric s = case String.toLower s of
+            "litres" -> Litres
             _ -> Gallons
         newPage =
             { emptyPage

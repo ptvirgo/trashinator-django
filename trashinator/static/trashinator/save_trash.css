@@ -1,0 +1,51 @@
+body {
+    background-color: #dbe3db;
+}
+
+main {
+    color: #17280B;
+    font-size: 14pt;
+    font-family: 'Roboto', sans-serif;
+    width: 100%;
+}
+
+img#mascot {
+    border: none;
+    display: block;
+    margin: 1em auto;
+}
+
+div#trash {
+    margin: 1em auto;
+    width: 50ex;
+    text-align: center;
+}
+
+p#trashSentence {
+    font-family: 'Roboto Slab', serif;
+    font-size: 20pt;
+}
+
+p#trashAmount {
+    background-color: #aca793;
+    border-radius: 1em;
+    color: #483737;
+    display: inline-block;
+    margin: 0 1ex;
+    padding: 1em;
+}
+
+div#trash input {
+    background-color: inherit;
+    padding: .25em 1ex;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: 2px double #483737;
+    font-size: 12pt;
+    max-width: 12ex;
+}
+
+div#trash img {
+    vertical-align: middle;
+}

@@ -16,6 +16,7 @@ testPage =
     { emptyPage
     | volume = Just 1
     , timestamp = 1533006358000
+    , changed = False
     }
 
 testChangeAmount : Test
@@ -23,7 +24,7 @@ testChangeAmount = describe "Test ChangeAmount"
     [ fuzz (intRange 0 10) "ChangeAmount changes amount of trash" <| \i ->
         let txt = toString i
             x = toFloat i
-            newPage = { testPage | volume = Just x }
+            newPage = { testPage | volume = Just x, changed = True }
         in Expect.equal
             ( update (ChangeAmount txt) testPage )
             ( newPage, Cmd.none )
@@ -34,6 +35,7 @@ testChangeAmount = describe "Test ChangeAmount"
                 { testPage
                 | error = Just "Amount must be 0 or more"
                 , volume = Nothing
+                , changed = True
                 }
         in Expect.equal
             ( update (ChangeAmount txt) testPage )
@@ -44,13 +46,14 @@ testChangeAmount = describe "Test ChangeAmount"
             { testPage
             | error = Just "Amount must be a number"
             , volume = Nothing
+            , changed = True
             }
         in Expect.equal
             ( update (ChangeAmount "oops") testPage )
             ( newPage, Cmd.none )
 
     , test "ChangeAmount with empty string is Nothing" <| \_ ->
-        let newPage = { testPage | volume = Nothing }
+        let newPage = { testPage | volume = Nothing, changed = True }
         in Expect.equal
             ( update (ChangeAmount "") testPage)
             ( newPage, Cmd.none )

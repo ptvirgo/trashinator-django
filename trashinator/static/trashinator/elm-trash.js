@@ -12219,9 +12219,9 @@ var _user$project$Model$jwtString = function (j) {
 	var _p3 = j;
 	return _p3._0;
 };
-var _user$project$Model$TrashPage = F6(
-	function (a, b, c, d, e, f) {
-		return {jwt: a, day: b, timestamp: c, metric: d, volume: e, error: f};
+var _user$project$Model$TrashPage = F7(
+	function (a, b, c, d, e, f, g) {
+		return {jwt: a, day: b, timestamp: c, metric: d, volume: e, error: f, changed: g};
 	});
 var _user$project$Model$Trash = F3(
 	function (a, b, c) {
@@ -12256,7 +12256,8 @@ var _user$project$Model$emptyPage = {
 	jwt: _user$project$Model$Jwt('invalid token'),
 	metric: _user$project$Trash_Enum_Metric$Gallons,
 	volume: _elm_lang$core$Maybe$Nothing,
-	error: _elm_lang$core$Maybe$Nothing
+	error: _elm_lang$core$Maybe$Nothing,
+	changed: false
 };
 
 var _user$project$Trash_Mutation$saveTrash = F3(
@@ -12399,7 +12400,8 @@ var _user$project$Update$gotResponse = F2(
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						volume: A2(_user$project$Update$trashVolume, _p4._0, model.metric)
+						volume: A2(_user$project$Update$trashVolume, _p4._0, model.metric),
+						changed: false
 					});
 			}
 		}
@@ -12410,11 +12412,12 @@ var _user$project$Update$changeAmount = F2(
 		if (_p5.ctor === 'Err') {
 			return _elm_lang$core$Native_Utils.eq(txt, '') ? _elm_lang$core$Native_Utils.update(
 				model,
-				{volume: _elm_lang$core$Maybe$Nothing, error: _elm_lang$core$Maybe$Nothing}) : _elm_lang$core$Native_Utils.update(
+				{volume: _elm_lang$core$Maybe$Nothing, error: _elm_lang$core$Maybe$Nothing, changed: true}) : _elm_lang$core$Native_Utils.update(
 				model,
 				{
 					volume: _elm_lang$core$Maybe$Nothing,
-					error: _elm_lang$core$Maybe$Just('Amount must be a number')
+					error: _elm_lang$core$Maybe$Just('Amount must be a number'),
+					changed: true
 				});
 		} else {
 			var _p6 = _p5._0;
@@ -12422,12 +12425,14 @@ var _user$project$Update$changeAmount = F2(
 				model,
 				{
 					volume: _elm_lang$core$Maybe$Nothing,
-					error: _elm_lang$core$Maybe$Just('Amount must be 0 or more')
+					error: _elm_lang$core$Maybe$Just('Amount must be 0 or more'),
+					changed: true
 				}) : _elm_lang$core$Native_Utils.update(
 				model,
 				{
 					volume: _elm_lang$core$Maybe$Just(_p6),
-					error: _elm_lang$core$Maybe$Nothing
+					error: _elm_lang$core$Maybe$Nothing,
+					changed: true
 				});
 		}
 	});
@@ -12501,36 +12506,21 @@ var _user$project$View$viewErrors = function (error) {
 			});
 	}
 };
-var _user$project$View$saveButton = function (error) {
-	var _p1 = error;
-	if (_p1.ctor === 'Nothing') {
-		return A2(
-			_elm_lang$html$Html$p,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Events$onClick(_user$project$Update$SavePage),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html$text('Save'),
-				_1: {ctor: '[]'}
-			});
-	} else {
-		return _elm_lang$html$Html$text('');
-	}
-};
 var _user$project$View$inputVolume = function (metric) {
 	return A2(
 		_elm_lang$html$Html$p,
-		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id('trashAmount'),
+			_1: {ctor: '[]'}
+		},
 		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$html$Html$input,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$placeholder('How much?'),
+					_0: _elm_lang$html$Html_Attributes$placeholder('How many?'),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Events$onInput(_user$project$Update$ChangeAmount),
@@ -12559,22 +12549,30 @@ var _user$project$View$viewTrash = F3(
 		var metricWord = _elm_lang$core$String$toLower(
 			_elm_lang$core$Basics$toString(metric));
 		var howMuch = function () {
-			var _p2 = amount;
-			if (_p2.ctor === 'Nothing') {
-				return 'nothing';
+			var _p1 = amount;
+			if (_p1.ctor === 'Nothing') {
+				return '...';
 			} else {
-				return A2(
-					_elm_lang$core$Basics_ops['++'],
-					_elm_lang$core$Basics$toString(_p2._0),
-					A2(
+				if (_p1._0 === 0) {
+					return 'nothing';
+				} else {
+					return A2(
 						_elm_lang$core$Basics_ops['++'],
-						' ',
-						A2(_elm_lang$core$Basics_ops['++'], metricWord, ' of trash ')));
+						_elm_lang$core$Basics$toString(_p1._0),
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							' ',
+							A2(_elm_lang$core$Basics_ops['++'], metricWord, ' of trash ')));
+				}
 			}
 		}();
 		return A2(
 			_elm_lang$html$Html$p,
-			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$id('trashSentence'),
+				_1: {ctor: '[]'}
+			},
 			{
 				ctor: '::',
 				_0: _elm_lang$html$Html$text(
@@ -12591,6 +12589,45 @@ var _user$project$View$viewTrash = F3(
 				_1: {ctor: '[]'}
 			});
 	});
+var _user$project$View$noSaveButtonIcon = '/static/trashinator/checkmark-faded.svg';
+var _user$project$View$saveButtonIcon = '/static/trashinator/checkmark.svg';
+var _user$project$View$saveButton = function (model) {
+	return (model.changed && (_elm_lang$core$Native_Utils.eq(model.error, _elm_lang$core$Maybe$Nothing) && (!_elm_lang$core$Native_Utils.eq(model.volume, _elm_lang$core$Maybe$Nothing)))) ? A2(
+		_elm_lang$html$Html$img,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onClick(_user$project$Update$SavePage),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$id('saveButton'),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$src(_user$project$View$saveButtonIcon),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$alt('save'),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		},
+		{ctor: '[]'}) : A2(
+		_elm_lang$html$Html$img,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id('saveButton'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$src(_user$project$View$noSaveButtonIcon),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$alt('can\'t save'),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		{ctor: '[]'});
+};
 var _user$project$View$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -12603,7 +12640,7 @@ var _user$project$View$view = function (model) {
 				_0: _user$project$View$inputVolume(model.metric),
 				_1: {
 					ctor: '::',
-					_0: _user$project$View$saveButton(model.error),
+					_0: _user$project$View$saveButton(model),
 					_1: {
 						ctor: '::',
 						_0: _user$project$View$viewErrors(model.error),
@@ -12616,8 +12653,8 @@ var _user$project$View$view = function (model) {
 
 var _user$project$Main$init = function (flags) {
 	var readMetric = function (s) {
-		var _p0 = s;
-		if (_p0 === 'Litres') {
+		var _p0 = _elm_lang$core$String$toLower(s);
+		if (_p0 === 'litres') {
 			return _user$project$Trash_Enum_Metric$Litres;
 		} else {
 			return _user$project$Trash_Enum_Metric$Gallons;
