@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block style %}
+<link href="https://fonts.googleapis.com/css?family=Roboto|Roboto+Slab" rel="stylesheet"> 
+<link rel="stylesheet" type="text/css" href="{% static "trashinator/save_trash.css" %}" />
+{% endblock style %}
+
+{% block app_nav %}
+<a href="{% url 'trashinator:trash' %}">Trash</a>
+<a href="{% url 'trashinator:profile' %}">Trash Settings</a>
+{% endblock app_nav %}
