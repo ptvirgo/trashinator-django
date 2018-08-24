@@ -70,8 +70,8 @@ class TestGraphql(TestCase):
         user_trash = [TrashFactory(household=profile.current_household)
                       for _ in range(random.randint(1, 5))]
 
-        more_trash = [TrashFactory(date=user_trash[0].date)
-                      for _ in range(random.randint(5, 15))]
+        for _ in range(random.randint(5, 15)):
+            TrashFactory(date=user_trash[0].date)
 
         query = """{stats(token: "%s"){
             AvgHouseholdGallonsPerDay AvgHouseholdLitresPerDay
@@ -116,9 +116,9 @@ class TestGraphql(TestCase):
 
     def test_resave_trash(self):
         """Trash can be overwritten"""
-        
+
         profile = TrashProfileFactory()
-        trash = TrashFactory(household = profile.current_household)
+        TrashFactory(household=profile.current_household)
 
         test_data = {
             "date": datetime.date.today().isoformat(),

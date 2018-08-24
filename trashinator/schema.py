@@ -1,5 +1,3 @@
-import datetime
-
 import graphene
 from graphene_django import DjangoObjectType
 

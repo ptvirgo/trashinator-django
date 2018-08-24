@@ -44,3 +44,8 @@ class TrashFactory(factory.django.DjangoModelFactory):
 
     household = factory.SubFactory("trashinator.factories.HouseHoldFactory")
     gallons = factory.fuzzy.FuzzyFloat(0, 13)
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        manager = cls._get_manager(model_class)
+        return manager.create_trash(*args, **kwargs)
