@@ -70,7 +70,7 @@ class SaveTrash(graphene.Mutation):
         try:
             trash = Trash.objects.get(household__user=user, date=date)
         except Trash.DoesNotExist:
-            trash = Trash(
+            trash = Trash.create(
                 household=user.trash_profile.current_household,
                 date=date,
                 litres=0)

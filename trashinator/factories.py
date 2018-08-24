@@ -47,5 +47,6 @@ class TrashFactory(factory.django.DjangoModelFactory):
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
-        manager = cls._get_manager(model_class)
-        return manager.create_trash(*args, **kwargs)
+        trash = model_class.create(*args, **kwargs)
+        trash.save()
+        return trash

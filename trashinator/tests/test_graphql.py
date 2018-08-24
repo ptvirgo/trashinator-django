@@ -1,7 +1,6 @@
 import datetime
 import graphene
 import random
-from unittest import skip
 
 from django.test import TestCase
 
@@ -61,27 +60,6 @@ class TestGraphql(TestCase):
 
         self.assertEqual(result.data["trash"]["date"], trash.date.isoformat())
         self.assertEqual(result.data["trash"]["gallons"], trash.gallons)
-
-    @skip("WIP")
-    def test_household_stats(self):
-        """Household stats can be retrieved"""
-        profile = TrashProfileFactory()
-
-        user_trash = [TrashFactory(household=profile.current_household)
-                      for _ in range(random.randint(1, 5))]
-
-        for _ in range(random.randint(5, 15)):
-            TrashFactory(date=user_trash[0].date)
-
-        query = """{stats(token: "%s"){
-            AvgHouseholdGallonsPerDay AvgHouseholdLitresPerDay
-            myHouseholdGallonsPerDay myHouseholdLitresPerDay}}
-            """ % (utils.user_jwt(profile.user),)
-
-        result = self.schema.execute(query)
-
-        if result.errors:
-            raise AssertionError(result.errors)
 
     def test_save_trash(self):
         """Trash can be saved"""

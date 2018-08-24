@@ -89,17 +89,18 @@ class TestTrackingPeriod(TestCase):
         Creating a new trash prepares an empty tracking period if needed.
         """
         trash = TrashFactory()
-        self.assertEqual(len(trash.tracking_period_set), 1)
+        self.assertIsNot(trash.tracking_period, None)
 
     def test_create_trash_shares_tracking_period_as_appropriate(self):
         """
         Creating a new trash uses an existing tracking period as appropriate.
         """
         old_date = datetime.date.today() - datetime.timedelta(
-            days=settings.TRASHINATOR["MAX_TRACKING_SPLIT"])
+            days=(settings.TRASHINATOR["MAX_TRACKING_SPLIT"] - 1))
 
         old_trash = TrashFactory(date=old_date)
-        new_trash = TrashFactory(household=old_trash.household)
+        new_trash = TrashFactory(date=datetime.date.today(),
+                                 household=old_trash.household)
 
         self.assertEqual(old_trash.tracking_period.pk,
                          new_trash.tracking_period.pk)
@@ -116,6 +117,23 @@ class TestTrackingPeriod(TestCase):
 
         self.assertNotEqual(old_trash.tracking_period.pk,
                             new_trash.tracking_period.pk)
+
+    def test_tracking_periods_do_not_overlap_on_different_households(self):
+        """
+        Creating a new trash on a different household will not result in a
+        shared tracking period.
+        """
+        yesterday = datetime.date.today() - datetime.timedelta(days=1)
+        first_trash = TrashFactory(date=yesterday)
+
+        user = first_trash.household.user
+        user.current_household = HouseHoldFactory(user=user)
+        user.save()
+
+        second_trash = TrashFactory(household=user.current_household)
+
+        self.assertNotEqual(first_trash.tracking_period.pk,
+                            second_trash.tracking_period.pk)
 
     @skip("TODO")
     def test_tracking_period_is_open(self):
