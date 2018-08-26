@@ -70,21 +70,52 @@ class TrackingPeriod(models.Model):
 
     @property
     def began(self):
-        first = self.trash_set.order_by('date').first()
+        item = self.trash_set.order_by("date").first()
 
-        if first is None:
-            return
+        if item is not None:
+            return item.date
         else:
-            return first.date
+            return None
 
     @property
     def latest(self):
-        last = self.trash_set.order_by('-date').first()
+        item = self.trash_set.order_by("-date").first()
 
-        if last is None:
-            return
+        if item is not None:
+            return item.date
         else:
-            return last.date
+            return None
+
+    @classmethod
+    def close_old(cls):
+        """
+        Change TrackingPeriod.status to COMPLETE or VOID for TrackingPeriods
+        whose last record is older than the settings allow.  TrackingPeriods
+        require at least two Trash records to be marked COMPLETE.
+
+        Returns:
+            two integers: number of COMPLETE records and number of VOID records
+        """
+        cutoff = datetime.date.today() - datetime.timedelta(
+            days=settings.TRASHINATOR["MAX_TRACKING_SPLIT"])
+
+        completes = TrackingPeriod.objects.annotate(
+            latest=models.Max("trash__date"),
+            total=models.Count("trash")
+            ).filter(status="PROGRESS", latest__lt=cutoff, total__gt=1)
+
+        completes_count = completes.count()
+        completes.update(status="COMPLETE")
+
+        voids = TrackingPeriod.objects.annotate(
+            latest=models.Max("trash__date"),
+            total=models.Count("trash")
+            ).filter(status="PROGRESS", latest__lt=cutoff, total__lt=2)
+
+        void_count = voids.count()
+        voids.update(status="VOID")
+
+        return completes_count, void_count
 
 
 class Trash(models.Model):
@@ -118,7 +149,9 @@ class Trash(models.Model):
         cutoff = datetime.date.today() - datetime.timedelta(
             days=settings.TRASHINATOR["MAX_TRACKING_SPLIT"])
 
-        if last_trash is not None \
+        if "tracking_period" in kwargs:
+            tracking_period = kwargs.pop("tracking_period")
+        elif last_trash is not None \
                 and (last_trash.tracking_period.status ==
                      TrackingPeriodStatus.PROGRESS.name) \
                 and (last_trash.tracking_period.latest > cutoff):

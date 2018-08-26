@@ -1,7 +1,7 @@
 import datetime
+import random
 
 from factory.fuzzy import FuzzyFloat, FuzzyInteger
-from unittest import skip
 
 from django.db.utils import IntegrityError
 from django.core.exceptions import ValidationError
@@ -9,6 +9,7 @@ from django.conf import settings
 from django.test import TestCase
 
 from ..factories import TrashProfileFactory, HouseHoldFactory, TrashFactory
+from ..models import TrackingPeriod
 # from ..models import TrashManage, TrackingPeriod, TrackingPeriodStatus
 
 
@@ -84,6 +85,23 @@ class TestTrash(TestCase):
 
 class TestTrackingPeriod(TestCase):
 
+    def test_tracking_period_ends_accurate(self):
+        """
+        TrackingPeriod.began and TrackingPeriod.latest dates are accurate.
+        """
+        last_day = datetime.date.today() - datetime.timedelta(
+            days=random.randint(1, 3))
+        middle_day = last_day - datetime.timedelta(days=random.randint(1, 5))
+        first_day = middle_day - datetime.timedelta(days=random.randint(1, 5))
+
+        period = TrashFactory(date=last_day).tracking_period
+        TrashFactory(date=middle_day, tracking_period=period)
+        TrashFactory(date=first_day, tracking_period=period)
+        period.refresh_from_db()
+
+        self.assertEqual(period.began, first_day)
+        self.assertEqual(period.latest, last_day)
+
     def test_create_trash_makes_tracking_period(self):
         """
         Creating a new trash prepares an empty tracking period if needed.
@@ -135,10 +153,40 @@ class TestTrackingPeriod(TestCase):
         self.assertNotEqual(first_trash.tracking_period.pk,
                             second_trash.tracking_period.pk)
 
-    @skip("TODO")
-    def test_tracking_period_is_open(self):
+    def test_tracking_period_class_closes_old_periods(self):
         """
-        TrackingPeriod is closed after the
-        settings.trashinator.max_quiet_period has passed
+        TrackingPeriod.close_old() will close records that are no
+        longer accepting trash
         """
-        raise AssertionError("not written")
+        cutoff = datetime.date.today() - datetime.timedelta(
+            days=settings.TRASHINATOR["MAX_TRACKING_SPLIT"])
+        past_cutoff = cutoff - datetime.timedelta(days=1)
+
+        good = TrashFactory(date=datetime.date.today()).tracking_period
+        TrashFactory(date=cutoff, tracking_period=good)
+
+        must_close = TrashFactory(date=past_cutoff).tracking_period
+
+        for i in range(random.randint(1, 3)):
+            day = past_cutoff - datetime.timedelta(days=i)
+            TrashFactory(date=day, tracking_period=must_close)
+
+        void1 = TrashFactory(date=past_cutoff).tracking_period
+        void2 = TrashFactory(date=past_cutoff).tracking_period
+
+        closed, voided = TrackingPeriod.close_old()
+
+        self.assertEqual(closed, 1, msg="should have closed 1")
+        self.assertEqual(voided, 2, msg="should have voided 2")
+
+        good.refresh_from_db()
+        self.assertEqual(good.status, "PROGRESS")
+
+        must_close.refresh_from_db()
+        self.assertEqual(must_close.status, "COMPLETE")
+
+        void1.refresh_from_db()
+        self.assertEqual(void1.status, "VOID")
+
+        void2.refresh_from_db()
+        self.assertEqual(void2.status, "VOID")
