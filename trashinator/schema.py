@@ -3,8 +3,10 @@ from graphene_django import DjangoObjectType
 
 from user_extensions import utils
 
-from .models import Trash
+from .models import Trash, Stats
 
+
+# Trash Records
 
 class TrashNode(DjangoObjectType):
     class Meta:
@@ -90,3 +92,36 @@ class SaveTrash(graphene.Mutation):
 
 class TrashMutation(graphene.ObjectType):
     save_trash = SaveTrash.Field()
+
+
+# Sitewide Stats
+
+class StatsNode(DjangoObjectType):
+    class Meta:
+        model = Stats
+
+    litres_per_person_per_week = graphene.Float()
+
+    def resolve_litres_per_person_per_week(root, info):
+        return root.litres_per_person_per_week
+
+    gallons_per_person_per_week = graphene.Float()
+
+    def resolve_gallons_per_person_per_week(root, info):
+        return root.gallons_per_person_per_week
+
+
+class StatsQuery(graphene.ObjectType):
+    stats = graphene.Field(
+        StatsNode, required=True,
+        token=graphene.String(required=True))
+
+    def resolve_stats(self, info, token, *args, **kwargs):
+        """Provide access to sitewide stats"""
+        user = utils.jwt_user(token)
+
+        if not user.is_authenticated:
+            raise ValueError("not authorized")
+
+        stats = Stats.load()
+        return stats

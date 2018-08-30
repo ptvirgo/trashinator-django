@@ -6,12 +6,13 @@ from django.test import TestCase
 
 from user_extensions import utils
 
-from ..factories import TrashProfileFactory, HouseHoldFactory, TrashFactory
-from ..models import Trash
-from ..schema import TrashQuery, TrashMutation
+from ..factories import TrashProfileFactory, HouseHoldFactory, TrashFactory,\
+    TrackingPeriodFactory
+from ..models import Trash, Stats
+from ..schema import TrashQuery, TrashMutation, StatsQuery
 
 
-class TestGraphql(TestCase):
+class TestReadTrash(TestCase):
     schema = graphene.Schema(query=TrashQuery, mutation=TrashMutation)
 
     def test_read_all_trash(self):
@@ -60,6 +61,10 @@ class TestGraphql(TestCase):
 
         self.assertEqual(result.data["trash"]["date"], trash.date.isoformat())
         self.assertEqual(result.data["trash"]["gallons"], trash.gallons)
+
+
+class TestSaveTrash(TestCase):
+    schema = graphene.Schema(query=TrashQuery, mutation=TrashMutation)
 
     def test_save_trash(self):
         """Trash can be saved"""
@@ -124,3 +129,32 @@ class TestGraphql(TestCase):
             household=profile.current_household, date=test_data["date"])
 
         self.assertEqual(lookup.litres, test_data["volume"])
+
+
+class TestReadStats(TestCase):
+    schema = graphene.Schema(query=StatsQuery)
+
+    def test_read_stats(self):
+        """Stats can be read"""
+        trash = TrashFactory()
+        user = trash.household.user
+        TrackingPeriodFactory.from_trash(trash, 5)
+        stats = Stats.create()
+        stats.save()
+        test_data = {"token": utils.user_jwt(user)}
+
+        query = """query Stats($token: String!){stats(token: $token){
+                litresPerPersonPerWeek, gallonsPerPersonPerWeek}}"""
+
+        result = self.schema.execute(query, variable_values=test_data)
+
+        if result.errors:
+            raise AssertionError(result.errors)
+
+        self.assertEqual(
+            result.data["stats"]["litresPerPersonPerWeek"],
+            stats.litres_per_person_per_week)
+
+        self.assertEqual(
+            result.data["stats"]["gallonsPerPersonPerWeek"],
+            stats.gallons_per_person_per_week)
