@@ -50,3 +50,22 @@ class TrashFactory(factory.django.DjangoModelFactory):
         trash = model_class.create(*args, **kwargs)
         trash.save()
         return trash
+
+
+class TrackingPeriodFactory(factory.django.DjangoModelFactory):
+    """TrackingPeriod"""
+    class Meta:
+        model = models.TrackingPeriod
+
+    status = "PROGRESS"
+
+    @staticmethod
+    def from_trash(first, count, *args, **kwargs):
+
+        for i in range(count):
+            day = first.date - timedelta(days=(i + 1))
+            TrashFactory(date=day, household=first.household,
+                         tracking_period=first.tracking_period)
+
+        first.tracking_period.save()
+        return first.tracking_period

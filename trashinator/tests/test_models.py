@@ -1,4 +1,5 @@
 import datetime
+import functools
 import random
 
 from factory.fuzzy import FuzzyFloat, FuzzyInteger
@@ -8,8 +9,9 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.test import TestCase
 
-from ..factories import TrashProfileFactory, HouseHoldFactory, TrashFactory
-from ..models import TrackingPeriod
+from ..factories import TrashProfileFactory, HouseHoldFactory, TrashFactory,\
+    TrackingPeriodFactory
+from ..models import TrackingPeriod, Stats
 # from ..models import TrashManage, TrackingPeriod, TrackingPeriodStatus
 
 
@@ -128,7 +130,7 @@ class TestTrackingPeriod(TestCase):
         Creating a new trash splits tracking periods as appropriate.
         """
         old_date = datetime.date.today() - datetime.timedelta(
-            days=(settings.TRASHINATOR["MAX_TRACKING_SPLIT"] + 1))
+            days=(settings.TRASHINATOR["MAX_TRACKING_SPLIT"] + 2))
 
         old_trash = TrashFactory(date=old_date)
         new_trash = TrashFactory(household=old_trash.household)
@@ -190,3 +192,93 @@ class TestTrackingPeriod(TestCase):
 
         void2.refresh_from_db()
         self.assertEqual(void2.status, "VOID")
+
+    def test_tracking_period_stats(self):
+        """
+        Tracking periods provide individual stats
+        """
+
+        def prior(to, date):
+            return TrashFactory(date=date, household=to.household,
+                                tracking_period=to.tracking_period)
+
+        def mkweek(first=None):
+            if first is None:
+                first = TrashFactory(date=datetime.date.today())
+
+            week = [first]
+
+            for i in range(random.randint(1, 5)):
+                day = first.date - datetime.timedelta(days=(i + 1))
+                trash = prior(first, day)
+                week.append(trash)
+
+            return week
+
+        week1 = mkweek()
+        week1_total = functools.reduce(
+            lambda total, trash: total + trash.litres, week1, 0)
+
+        week1_avg = week1_total / week1[0].household.population
+
+        self.assertEqual(
+            week1[0].tracking_period.litres_per_person_per_week,
+            round(week1_avg, 2))
+
+        date2 = week1[0].date - datetime.timedelta(days=7)
+        week2 = mkweek(prior(week1[0], date2))
+
+        week2_total = functools.reduce(
+            lambda total, trash: total + trash.litres, week2, 0)
+
+        week2_avg = week2_total / week2[0].household.population
+
+        expects = round((week1_avg + week2_avg) / 2, 2)
+        self.assertEqual(
+            week1[0].tracking_period.litres_per_person_per_week,
+            expects)
+
+
+class TestStats(TestCase):
+
+    def test_stats_calculates_values(self):
+        """
+        Stats calculates averages
+        """
+        six_months_ago = datetime.date.today() - datetime.timedelta(
+            days=6 * 30)
+
+        trash1 = TrashFactory(date=six_months_ago)
+        period1 = TrackingPeriodFactory.from_trash(
+            trash1, random.randint(1, 14))
+        period1.status = "COMPLETE"
+        period1.save()
+
+        stats = Stats.create()
+        self.assertEqual(
+            stats.litres_per_person_per_week,
+            period1.litres_per_person_per_week,
+            msg="stats must calculate averages")
+
+        trash2 = TrashFactory(date=six_months_ago)
+        period2 = TrackingPeriodFactory.from_trash(
+            trash2, random.randint(1, 5))
+        period2.status = "VOID"
+        period2.save()
+
+        stats.recalculate()
+        self.assertEqual(
+            stats.litres_per_person_per_week,
+            period1.litres_per_person_per_week,
+            msg="stats must skip voided tracking peirods")
+
+        trash3 = TrashFactory()
+        period3 = TrackingPeriodFactory.from_trash(
+            trash3, random.randint(1, 5))
+
+        expects = round(
+            (period1.litres_per_person_per_week +
+             period3.litres_per_person_per_week) / 2, 2)
+
+        stats.recalculate()
+        self.assertEqual(stats.litres_per_person_per_week, expects)

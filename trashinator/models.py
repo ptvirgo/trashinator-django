@@ -1,5 +1,7 @@
 import datetime
 from enum import Enum
+from math import ceil
+from functools import reduce
 import pycountry
 
 from django.db import models
@@ -7,6 +9,12 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 
 from .validators import zero_or_more, one_or_more
+
+
+# Helpers
+
+def litres_to_gallons(litres):
+    return round(litres / 3.785411784, 2)
 
 
 # Model choices
@@ -36,6 +44,10 @@ class TrashProfile(models.Model):
             raise ValidationError(
                 "current_household cannot belong to someone else")
 
+    def __str__(self):
+        return "TrashProfile(user={}, created={})".format(
+            self.user.username, self.created.isoformat())
+
 
 class HouseHold(models.Model):
     """
@@ -46,6 +58,9 @@ class HouseHold(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     population = models.IntegerField(validators=[one_or_more])
     country = models.CharField(max_length=3, choices=COUNTRY_CHOICES)
+
+    def __str__(self):
+        return
 
 
 class TrackingPeriodStatus(Enum):
@@ -85,6 +100,51 @@ class TrackingPeriod(models.Model):
             return item.date
         else:
             return None
+
+    @property
+    def _volume_per_person_per_week(self):
+        if self.status == "VOID":
+            return
+
+        if not self.trash_set.exists:
+            return
+
+        volume = self.trash_set.aggregate(models.Sum("_volume"))
+        litres = volume["_volume__sum"]
+
+        pop = self.trash_set.first().household.population
+
+        day_count = self.latest - self.began
+        weeks = ceil(day_count.days / 7.0)
+
+        if weeks == 0:
+            weeks = 1
+
+        return litres / pop / weeks
+
+    @property
+    def litres_per_person_per_week(self):
+        """
+        Provide the volume in litres / person / week, rounded to two decimals
+        """
+        volume = self._volume_per_person_per_week
+
+        if volume == 0:
+            return
+
+        return round(self._volume_per_person_per_week, 2)
+
+    @property
+    def gallons_per_person_per_week(self):
+        """
+        Provide the volume in gallons / person / week, rounded to two decimals
+        """
+        volume = self._volume_per_person_per_week
+
+        if volume == 0:
+            return
+
+        return round(litres_to_gallons(self._volume_per_person_per_week), 2)
 
     @classmethod
     def close_old(cls):
@@ -173,12 +233,64 @@ class Trash(models.Model):
 
     @property
     def gallons(self):
-        return round(self._volume / 3.785411784, 2)
+        return litres_to_gallons(self._volume)
 
     @gallons.setter
     def gallons(self, gallons):
         self._volume = gallons * 3.785411784
 
     def __str__(self):
-        return "Trash(user: {}, date: {}, _volume: {})".format(
-            self.household.user.username, self.date, self._volume)
+        return "Trash(user={}, date={}, _volume={})".format(
+            self.household.user.username, self.date.isoformat(), self._volume)
+
+
+class Stats(models.Model):
+    """
+    Stats provides the means to periodically calculate and store app
+    statistics, so that the calculations don't have to be re-made on every
+    look-up.
+    """
+    _volume_per_person_per_week = models.FloatField(default=0)
+
+    @property
+    def litres_per_person_per_week(self):
+        return self._volume_per_person_per_week
+
+    @property
+    def gallons_per_person_per_week(self):
+        return litres_to_gallons(self._volume_per_person_per_week)
+
+    def recalculate(self):
+        periods = TrackingPeriod.objects.filter(
+            status__in=["PROGRESS", "COMPLETE"]).annotate(
+            trashes=models.Count("trash")).filter(trashes__gte=1)
+
+        count = periods.count()
+
+        if count == 0:
+            self._volume_per_person_per_week = 0
+            return
+
+        avg = reduce(
+            lambda total, period: total + period.litres_per_person_per_week,
+            periods.all(), 0) / count
+
+        self._volume_per_person_per_week = round(avg, 2)
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        obj, created = cls.objects.get_or_create(pk=1)
+        obj.recalculate()
+        return obj
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
