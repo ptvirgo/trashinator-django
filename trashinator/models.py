@@ -1,8 +1,8 @@
 import datetime
 from enum import Enum
 from math import ceil
-from functools import reduce
 import pycountry
+import statistics
 
 from django.db import models
 from django.conf import settings
@@ -14,7 +14,7 @@ from .validators import zero_or_more, one_or_more
 # Helpers
 
 def litres_to_gallons(litres):
-    return round(litres / 3.785411784, 2)
+    return litres / 3.785411784
 
 
 # Model choices
@@ -225,7 +225,7 @@ class Trash(models.Model):
 
     @property
     def litres(self):
-        return self._volume
+        return round(self._volume, 2)
 
     @litres.setter
     def litres(self, litres):
@@ -233,7 +233,7 @@ class Trash(models.Model):
 
     @property
     def gallons(self):
-        return litres_to_gallons(self._volume)
+        return round(litres_to_gallons(self._volume), 2)
 
     @gallons.setter
     def gallons(self, gallons):
@@ -251,14 +251,23 @@ class Stats(models.Model):
     look-up.
     """
     _volume_per_person_per_week = models.FloatField(default=0)
+    _volume_standard_deviation = models.FloatField(default=0)
 
     @property
     def litres_per_person_per_week(self):
-        return self._volume_per_person_per_week
+        return round(self._volume_per_person_per_week, 2)
 
     @property
     def gallons_per_person_per_week(self):
-        return litres_to_gallons(self._volume_per_person_per_week)
+        return round(litres_to_gallons(self._volume_per_person_per_week), 2)
+
+    @property
+    def litres_standard_deviation(self):
+        return round(self._volume_standard_deviation, 2)
+
+    @property
+    def gallons_standard_deviation(self):
+        return round(litres_to_gallons(self._volume_standard_deviation), 2)
 
     def recalculate(self):
         periods = TrackingPeriod.objects.filter(
@@ -267,15 +276,15 @@ class Stats(models.Model):
 
         count = periods.count()
 
-        if count == 0:
-            self._volume_per_person_per_week = 0
-            return
+        lpws = [p.litres_per_person_per_week for p in periods]
 
-        avg = reduce(
-            lambda total, period: total + period.litres_per_person_per_week,
-            periods.all(), 0) / count
+        if count > 0:
+            self._volume_per_person_per_week = statistics.mean(lpws)
 
-        self._volume_per_person_per_week = round(avg, 2)
+        if count > 1:
+            self._volume_standard_deviation = statistics.stdev(lpws)
+
+        self.save()
 
     @classmethod
     def create(cls, *args, **kwargs):

@@ -1,9 +1,12 @@
 import graphene
 from graphene_django import DjangoObjectType
+import statistics
+
+from django.db.models import Count
 
 from user_extensions import utils
 
-from .models import Trash, Stats
+from .models import Trash, TrackingPeriod, Stats, litres_to_gallons
 
 
 # Trash Records
@@ -96,22 +99,89 @@ class TrashMutation(graphene.ObjectType):
 
 # Sitewide Stats
 
-class StatsNode(DjangoObjectType):
+class SiteStatsNode(DjangoObjectType):
     class Meta:
         model = Stats
 
-    litres_per_person_per_week = graphene.Float()
+    litres_per_person_per_week = graphene.Float(required=True)
+    litres_standard_deviation = graphene.Float(required=True)
+
+    gallons_per_person_per_week = graphene.Float(required=True)
+    gallons_standard_deviation = graphene.Float(required=True)
 
     def resolve_litres_per_person_per_week(root, info):
         return root.litres_per_person_per_week
 
-    gallons_per_person_per_week = graphene.Float()
+    def resolve_standard_deviation_litres(root, info):
+        return root.litres_standard_deviation
 
     def resolve_gallons_per_person_per_week(root, info):
         return root.gallons_per_person_per_week
 
+    def resolve_standard_deviation_gallons(root, info):
+        return root.gallons_standard_deviation
+
+
+class UserStatsNode(graphene.ObjectType):
+    """
+    UserStatsNode is a "Node" without an underlying Django object.
+    """
+
+    litres_per_person_per_week = graphene.Float(required=True)
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+
+    def _mean_per_week(self):
+        """
+        Get the mean litres per person per week for the user's tracking periods
+        """
+        periods = TrackingPeriod.objects.distinct().filter(
+            trash__household__user=self.user).filter(
+            status__in=["COMPLETE", "PROGRESS"]).annotate(
+            trashes=Count("trash")).filter(trashes__gte=1)
+        mean = statistics.mean([p.litres_per_person_per_week for p in periods])
+        return mean
+
+    def resolve_litres_per_person_per_week(self, info, *args, **kwargs):
+        """
+        Return the mean of litres per person per week for the user's tracking
+        periods
+        """
+        if self.user is None:
+            raise ValueError("user required")
+
+        return round(self._mean_per_week(), 2)
+
+    gallons_per_person_per_week = graphene.Float(required=True)
+
+    def resolve_gallons_per_person_per_week(self, info, *args, **kwargs):
+        """
+        Return the mean of gallons per person per week for the user's tracking
+        periods
+        """
+        if self.user is None:
+            raise ValueError("user required")
+
+        return round(litres_to_gallons(self._mean_per_week()), 2)
+
+
+class StatsNode(graphene.ObjectType):
+    user = None
+    site = graphene.Field(SiteStatsNode, required=True)
+    user = graphene.Field(UserStatsNode, required=True)
+
+    def resolve_site(self, info, *args, **kwargs):
+        stats = Stats.load()
+        return stats
+
+    def resolve_user(self, info, *ags, **kwargs):
+        return UserStatsNode(user=self.user)
+
 
 class StatsQuery(graphene.ObjectType):
+
     stats = graphene.Field(
         StatsNode, required=True,
         token=graphene.String(required=True))
@@ -123,5 +193,5 @@ class StatsQuery(graphene.ObjectType):
         if not user.is_authenticated:
             raise ValueError("not authorized")
 
-        stats = Stats.load()
-        return stats
+        stats_node = StatsNode(user=user)
+        return stats_node

@@ -134,8 +134,8 @@ class TestSaveTrash(TestCase):
 class TestReadStats(TestCase):
     schema = graphene.Schema(query=StatsQuery)
 
-    def test_read_stats(self):
-        """Stats can be read"""
+    def test_read_site_stats(self):
+        """Sitewide stats can be read"""
         trash = TrashFactory()
         user = trash.household.user
         TrackingPeriodFactory.from_trash(trash, 5)
@@ -144,7 +144,8 @@ class TestReadStats(TestCase):
         test_data = {"token": utils.user_jwt(user)}
 
         query = """query Stats($token: String!){stats(token: $token){
-                litresPerPersonPerWeek, gallonsPerPersonPerWeek}}"""
+            site {litresPerPersonPerWeek gallonsPerPersonPerWeek
+                  litresStandardDeviation gallonsStandardDeviation}}}"""
 
         result = self.schema.execute(query, variable_values=test_data)
 
@@ -152,9 +153,41 @@ class TestReadStats(TestCase):
             raise AssertionError(result.errors)
 
         self.assertEqual(
-            result.data["stats"]["litresPerPersonPerWeek"],
+            result.data["stats"]["site"]["litresPerPersonPerWeek"],
             stats.litres_per_person_per_week)
 
         self.assertEqual(
-            result.data["stats"]["gallonsPerPersonPerWeek"],
+            result.data["stats"]["site"]["gallonsPerPersonPerWeek"],
             stats.gallons_per_person_per_week)
+
+        self.assertEqual(
+            result.data["stats"]["site"]["litresStandardDeviation"],
+            stats.litres_standard_deviation)
+
+        self.assertEqual(
+            result.data["stats"]["site"]["gallonsStandardDeviation"],
+            stats.gallons_standard_deviation)
+
+    def test_read_user_stats(self):
+        """User stats can be read"""
+        trash = TrashFactory()
+        user = trash.household.user
+        period = TrackingPeriodFactory.from_trash(trash, 5)
+
+        test_data = {"token": utils.user_jwt(user)}
+
+        query = """query Stats($token: String!){stats(token: $token){
+            user {litresPerPersonPerWeek gallonsPerPersonPerWeek}}}"""
+
+        result = self.schema.execute(query, variable_values=test_data)
+
+        if result.errors:
+            raise AssertionError(result.errors)
+
+        self.assertEqual(
+            result.data["stats"]["user"]["litresPerPersonPerWeek"],
+            period.litres_per_person_per_week)
+
+        self.assertEqual(
+            result.data["stats"]["user"]["gallonsPerPersonPerWeek"],
+            period.gallons_per_person_per_week)

@@ -60,7 +60,7 @@ class TestTrash(TestCase):
         self.assertEqual(trash.litres, 5.0)
         trash.gallons = 2.5
         self.assertEqual(trash.gallons, 2.5)
-        self.assertEqual(trash.litres / 3.785411784, trash.gallons)
+        self.assertEqual(round(trash.litres / 3.785411784, 2), trash.gallons)
 
     def test_household_population_validation(self):
         """Household size cannot be below 1"""
