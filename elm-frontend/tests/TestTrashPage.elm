@@ -10,7 +10,7 @@ import Trash.Scalar
 import Trash.Enum.Metric exposing (Metric (..))
 
 import TrashPage.Model exposing (..)
--- import TrashPage.Update exposing (..)
+import TrashPage.Update exposing (..)
 -- import TrashPage.View
 -- import TrashPage.Main
 
@@ -18,15 +18,18 @@ import TrashPage.Model exposing (..)
 testTime : Time.Time
 testTime = 1533006358000
 
-testPage : TrashPage
-testPage =
-    { emptyPage 
-    | entry = 
+testEntry : TPEntry
+testEntry =  
         { jwt = Jwt "testing token"
         , date = relativeDate testTime Today
         , metric = Gallons
         , volume = Just 1
         }
+
+testPage : TrashPage
+testPage =
+    { emptyPage
+    | entry = testEntry
     , meta = { timestamp = testTime, error = Nothing , changed = False }
     }
 
@@ -81,44 +84,48 @@ testSetters = describe "model value setters"
 
 {- Update.elm -}
 
+testChangeVolume : Test
+testChangeVolume = describe "ChangeVolume"
+    [ fuzz (intRange 0 10) "ChangeVolume changes the trash volume" <| \i ->
+        let txt = toString i
+            x = toFloat i
+            newPage = testPage
+                |> setPageVolume (Just x)
+                |> setPageChanged True
+        in Expect.equal
+            ( update (ChangeVolume txt) testPage )
+            ( newPage, Cmd.none )
+    , fuzz (intRange -10 -1) "ChangeVolume rejects numbers < 0" <| \i ->
+        let txt = toString i
+            newPage = testPage
+                |> setPageError (Just "Amount must be 0 or more")
+                |> setPageVolume Nothing
+                |> setPageChanged True
+        in Expect.equal
+            ( update (ChangeVolume txt) testPage )
+            ( newPage, Cmd.none )
+    , test "ChangeVolume rejects text strings" <| \_ ->
+        let newPage = testPage
+                |> setPageError (Just "Amount must be a number")
+                |> setPageVolume Nothing
+                |> setPageChanged True
+        in Expect.equal
+            ( update (ChangeVolume "oops") testPage )
+            ( newPage, Cmd.none )
+    , test "ChangeVolume with empty string is Nothing" <| \_ ->
+        let newPage = testPage
+            |> setPageVolume Nothing
+            |> setPageChanged False
+        in Expect.equal
+            ( update (ChangeVolume "") testPage )
+            ( newPage, Cmd.none )
 {-
 testChangeAmount : Test
 testChangeAmount = describe "Test ChangeAmount"
-    [ fuzz (intRange 0 10) "ChangeAmount changes amount of trash" <| \i ->
-        let txt = toString i
-            x = toFloat i
-            entry = { Just x }
-            
-        in Expect.equal
-            ( update (ChangeAmount txt) testPage )
-            ( newPage, Cmd.none )
-
-    , fuzz (intRange -10 -1) "ChangeAmount rejects numbers < 0" <| \i ->
-        let txt = toString i
-            newPage =
-                { testPage
-                | error = Just "Amount must be 0 or more"
-                , volume = Nothing
-                , changed = True
-                }
-        in Expect.equal
-            ( update (ChangeAmount txt) testPage )
-            ( newPage, Cmd.none)
-
-    , test "ChangeAmount rejects text strings" <| \_ ->
-        let newPage =
-            { testPage
-            | error = Just "Amount must be a number"
-            , volume = Nothing
-            , changed = True
-            }
-        in Expect.equal
-            ( update (ChangeAmount "oops") testPage )
-            ( newPage, Cmd.none )
-
     , test "ChangeAmount with empty string is Nothing" <| \_ ->
         let newPage = { testPage | volume = Nothing, changed = True }
         in Expect.equal
             ( update (ChangeAmount "") testPage)
             ( newPage, Cmd.none )
     ] -}
+    ]

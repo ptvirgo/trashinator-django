@@ -6,6 +6,8 @@ import Time
 import Graphqelm.SelectionSet exposing (SelectionSet, with)
 
 import Trash.Object.TrashNode as TrashNode
+import Trash.Object.SiteStatsNode as SiteStatsNode
+import Trash.Object.UserStatsNode as UserStatsNode
 import Trash.Object.StatsNode as StatsNode
 import Trash.Object.SaveTrash as SaveTrash
 import Trash.Object
@@ -138,3 +140,47 @@ setPageDay day page =
 type alias Model = TrashPage
 
 {- GraphQL Parsers -}
+
+type alias GqlTrash = { volume : Float }
+
+type alias GqlUserStats = { perPersonPerWeek : Float }
+type alias GqlSiteStats = { perPersonPerWeek : Float, stdDeviation : Float }
+type alias GqlPageStats = { user : GqlUserStats, site: GqlSiteStats }
+
+parseTrash : Metric -> SelectionSet GqlTrash Trash.Object.TrashNode
+parseTrash metric =
+    let field = case metric of
+        Gallons -> TrashNode.gallons
+        Litres -> TrashNode.litres
+    in TrashNode.selection GqlTrash |> with field
+
+parseUserStats : Metric -> SelectionSet GqlUserStats Trash.Object.UserStatsNode
+parseUserStats metric =
+    let field = case metric of
+        Gallons -> UserStatsNode.gallonsPerPersonPerWeek
+        Litres -> UserStatsNode.litresPerPersonPerWeek
+    in UserStatsNode.selection GqlUserStats |> with field
+
+parseSiteStats : Metric -> SelectionSet GqlSiteStats Trash.Object.SiteStatsNode
+parseSiteStats metric =
+    let (devField, volField) = case metric of
+        Gallons ->
+            ( SiteStatsNode.gallonsStandardDeviation
+            , SiteStatsNode.gallonsPerPersonPerWeek
+            )
+        Litres ->
+            ( SiteStatsNode.litresStandardDeviation
+            , SiteStatsNode.litresPerPersonPerWeek
+            )
+    in SiteStatsNode.selection GqlSiteStats
+        |> with devField
+        |> with volField
+
+parsePageStats : Metric -> SelectionSet GqlPageStats Trash.Object.StatsNode
+parsePageStats metric = StatsNode.selection GqlPageStats 
+    |> with ( StatsNode.user <| parseUserStats metric )
+    |> with ( StatsNode.site <| parseSiteStats metric )
+
+parseSaveTrash : Metric -> SelectionSet GqlTrash Trash.Object.SaveTrash
+parseSaveTrash metric = SaveTrash.selection identity
+    |> with ( SaveTrash.trash <| parseTrash metric )
