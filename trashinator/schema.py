@@ -15,12 +15,12 @@ class TrashNode(DjangoObjectType):
     class Meta:
         model = Trash
 
-    litres = graphene.Float()
+    litres = graphene.Float(required=True)
 
     def resolve_litres(root, info):
         return root.litres
 
-    gallons = graphene.Float()
+    gallons = graphene.Float(required=True)
 
     def resolve_gallons(root, info):
         return root.gallons

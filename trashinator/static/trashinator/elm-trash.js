@@ -12048,6 +12048,7 @@ var _user$project$Trash_InputObject$placeholder = '';
 var _user$project$Trash_Interface$placeholder = '';
 
 var _user$project$Trash_Object$SaveTrash = {ctor: 'SaveTrash'};
+var _user$project$Trash_Object$StatsNode = {ctor: 'StatsNode'};
 var _user$project$Trash_Object$TrashNode = {ctor: 'TrashNode'};
 
 var _user$project$Trash_Scalar$Date = function (a) {
@@ -12059,6 +12060,122 @@ var _user$project$Trash_Scalar$Id = function (a) {
 
 var _user$project$Trash_Union$placeholder = '';
 
+var _user$project$Trash_Mutation$saveTrash = F3(
+	function (fillInOptionals, requiredArgs, object) {
+		var filledInOptionals = fillInOptionals(
+			{volume: _dillonkearns$graphqelm$Graphqelm_OptionalArgument$Absent, metric: _dillonkearns$graphqelm$Graphqelm_OptionalArgument$Absent});
+		var optionalArgs = A2(
+			_elm_lang$core$List$filterMap,
+			_elm_lang$core$Basics$identity,
+			{
+				ctor: '::',
+				_0: A3(_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$optional, 'volume', filledInOptionals.volume, _dillonkearns$graphqelm$Graphqelm_Internal_Encode$float),
+				_1: {
+					ctor: '::',
+					_0: A3(
+						_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$optional,
+						'metric',
+						filledInOptionals.metric,
+						_dillonkearns$graphqelm$Graphqelm_Internal_Encode$enum(_user$project$Trash_Enum_Metric$toString)),
+					_1: {ctor: '[]'}
+				}
+			});
+		return A4(
+			_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selectionField,
+			'saveTrash',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				optionalArgs,
+				{
+					ctor: '::',
+					_0: A3(_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$required, 'token', requiredArgs.token, _dillonkearns$graphqelm$Graphqelm_Internal_Encode$string),
+					_1: {
+						ctor: '::',
+						_0: A3(
+							_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$required,
+							'date',
+							requiredArgs.date,
+							function (_p0) {
+								var _p1 = _p0;
+								return _dillonkearns$graphqelm$Graphqelm_Internal_Encode$string(_p1._0);
+							}),
+						_1: {ctor: '[]'}
+					}
+				}),
+			object,
+			function (_p2) {
+				return _elm_lang$core$Json_Decode$nullable(
+					_elm_lang$core$Basics$identity(_p2));
+			});
+	});
+var _user$project$Trash_Mutation$selection = function (constructor) {
+	return _dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selection(constructor);
+};
+var _user$project$Trash_Mutation$SaveTrashOptionalArguments = F2(
+	function (a, b) {
+		return {volume: a, metric: b};
+	});
+var _user$project$Trash_Mutation$SaveTrashRequiredArguments = F2(
+	function (a, b) {
+		return {token: a, date: b};
+	});
+
+var _user$project$Trash_Object_SaveTrash$trash = function (object) {
+	return A4(
+		_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selectionField,
+		'trash',
+		{ctor: '[]'},
+		object,
+		_elm_lang$core$Basics$identity);
+};
+var _user$project$Trash_Object_SaveTrash$selection = function (constructor) {
+	return _dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selection(constructor);
+};
+
+var _user$project$Trash_Object_StatsNode$gallonsPerPersonPerWeek = A3(
+	_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$fieldDecoder,
+	'gallonsPerPersonPerWeek',
+	{ctor: '[]'},
+	_elm_lang$core$Json_Decode$float);
+var _user$project$Trash_Object_StatsNode$litresPerPersonPerWeek = A3(
+	_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$fieldDecoder,
+	'litresPerPersonPerWeek',
+	{ctor: '[]'},
+	_elm_lang$core$Json_Decode$float);
+var _user$project$Trash_Object_StatsNode$volumePerPersonPerWeek = A3(
+	_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$fieldDecoder,
+	'VolumePerPersonPerWeek',
+	{ctor: '[]'},
+	_elm_lang$core$Json_Decode$float);
+var _user$project$Trash_Object_StatsNode$id = A3(
+	_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$fieldDecoder,
+	'id',
+	{ctor: '[]'},
+	A2(
+		_elm_lang$core$Json_Decode$map,
+		_user$project$Trash_Scalar$Id,
+		_elm_lang$core$Json_Decode$oneOf(
+			{
+				ctor: '::',
+				_0: _elm_lang$core$Json_Decode$string,
+				_1: {
+					ctor: '::',
+					_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Basics$toString, _elm_lang$core$Json_Decode$float),
+					_1: {
+						ctor: '::',
+						_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Basics$toString, _elm_lang$core$Json_Decode$int),
+						_1: {
+							ctor: '::',
+							_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Basics$toString, _elm_lang$core$Json_Decode$bool),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			})));
+var _user$project$Trash_Object_StatsNode$selection = function (constructor) {
+	return _dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selection(constructor);
+};
+
 var _user$project$Trash_Object_TrashNode$gallons = A3(
 	_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$fieldDecoder,
 	'gallons',
@@ -12069,11 +12186,6 @@ var _user$project$Trash_Object_TrashNode$litres = A3(
 	'litres',
 	{ctor: '[]'},
 	_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$float));
-var _user$project$Trash_Object_TrashNode$volume = A3(
-	_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$fieldDecoder,
-	'Volume',
-	{ctor: '[]'},
-	_elm_lang$core$Json_Decode$float);
 var _user$project$Trash_Object_TrashNode$date = A3(
 	_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$fieldDecoder,
 	'date',
@@ -12099,6 +12211,11 @@ var _user$project$Trash_Object_TrashNode$date = A3(
 					}
 				}
 			})));
+var _user$project$Trash_Object_TrashNode$volume = A3(
+	_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$fieldDecoder,
+	'Volume',
+	{ctor: '[]'},
+	_elm_lang$core$Json_Decode$float);
 var _user$project$Trash_Object_TrashNode$id = A3(
 	_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$fieldDecoder,
 	'id',
@@ -12128,19 +12245,78 @@ var _user$project$Trash_Object_TrashNode$selection = function (constructor) {
 	return _dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selection(constructor);
 };
 
-var _user$project$Trash_Object_SaveTrash$trash = function (object) {
-	return A4(
-		_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selectionField,
-		'trash',
-		{ctor: '[]'},
-		object,
-		_elm_lang$core$Basics$identity);
-};
-var _user$project$Trash_Object_SaveTrash$selection = function (constructor) {
+var _user$project$Trash_Query$trash = F2(
+	function (requiredArgs, object) {
+		return A4(
+			_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selectionField,
+			'trash',
+			{
+				ctor: '::',
+				_0: A3(
+					_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$required,
+					'date',
+					requiredArgs.date,
+					function (_p0) {
+						var _p1 = _p0;
+						return _dillonkearns$graphqelm$Graphqelm_Internal_Encode$string(_p1._0);
+					}),
+				_1: {
+					ctor: '::',
+					_0: A3(_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$required, 'token', requiredArgs.token, _dillonkearns$graphqelm$Graphqelm_Internal_Encode$string),
+					_1: {ctor: '[]'}
+				}
+			},
+			object,
+			function (_p2) {
+				return _elm_lang$core$Json_Decode$nullable(
+					_elm_lang$core$Basics$identity(_p2));
+			});
+	});
+var _user$project$Trash_Query$allTrash = F2(
+	function (requiredArgs, object) {
+		return A4(
+			_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selectionField,
+			'allTrash',
+			{
+				ctor: '::',
+				_0: A3(_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$required, 'token', requiredArgs.token, _dillonkearns$graphqelm$Graphqelm_Internal_Encode$string),
+				_1: {ctor: '[]'}
+			},
+			object,
+			function (_p3) {
+				return _elm_lang$core$Json_Decode$list(
+					_elm_lang$core$Json_Decode$nullable(
+						_elm_lang$core$Basics$identity(_p3)));
+			});
+	});
+var _user$project$Trash_Query$stats = F2(
+	function (requiredArgs, object) {
+		return A4(
+			_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selectionField,
+			'stats',
+			{
+				ctor: '::',
+				_0: A3(_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$required, 'token', requiredArgs.token, _dillonkearns$graphqelm$Graphqelm_Internal_Encode$string),
+				_1: {ctor: '[]'}
+			},
+			object,
+			_elm_lang$core$Basics$identity);
+	});
+var _user$project$Trash_Query$selection = function (constructor) {
 	return _dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selection(constructor);
 };
+var _user$project$Trash_Query$StatsRequiredArguments = function (a) {
+	return {token: a};
+};
+var _user$project$Trash_Query$AllTrashRequiredArguments = function (a) {
+	return {token: a};
+};
+var _user$project$Trash_Query$TrashRequiredArguments = F2(
+	function (a, b) {
+		return {date: a, token: b};
+	});
 
-var _user$project$Model$whichDayToString = function (day) {
+var _user$project$TrashPage_Model$whichDayToString = function (day) {
 	var _p0 = day;
 	switch (_p0.ctor) {
 		case 'Today':
@@ -12151,7 +12327,7 @@ var _user$project$Model$whichDayToString = function (day) {
 			return 'two days ago';
 	}
 };
-var _user$project$Model$relativeDate = F2(
+var _user$project$TrashPage_Model$relativeDate = F2(
 	function (ts, whichDay) {
 		var timestamp = function () {
 			var _p1 = whichDay;
@@ -12215,19 +12391,19 @@ var _user$project$Model$relativeDate = F2(
 						month,
 						A2(_elm_lang$core$Basics_ops['++'], '-', day)))));
 	});
-var _user$project$Model$jwtString = function (j) {
+var _user$project$TrashPage_Model$jwtString = function (j) {
 	var _p3 = j;
 	return _p3._0;
 };
-var _user$project$Model$TrashPage = F7(
-	function (a, b, c, d, e, f, g) {
-		return {jwt: a, day: b, timestamp: c, metric: d, volume: e, error: f, changed: g};
+var _user$project$TrashPage_Model$TrashPage = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {jwt: a, day: b, timestamp: c, metric: d, volume: e, stats: f, error: g, changed: h};
 	});
-var _user$project$Model$Trash = F3(
+var _user$project$TrashPage_Model$Trash = F3(
 	function (a, b, c) {
 		return {date: a, gallons: b, litres: c};
 	});
-var _user$project$Model$trash = A2(
+var _user$project$TrashPage_Model$trash = A2(
 	_dillonkearns$graphqelm$Graphqelm_SelectionSet$with,
 	_user$project$Trash_Object_TrashNode$litres,
 	A2(
@@ -12236,91 +12412,47 @@ var _user$project$Model$trash = A2(
 		A2(
 			_dillonkearns$graphqelm$Graphqelm_SelectionSet$with,
 			_user$project$Trash_Object_TrashNode$date,
-			_user$project$Trash_Object_TrashNode$selection(_user$project$Model$Trash))));
-var _user$project$Model$trashField = A2(
+			_user$project$Trash_Object_TrashNode$selection(_user$project$TrashPage_Model$Trash))));
+var _user$project$TrashPage_Model$saveTrashField = A2(
 	_dillonkearns$graphqelm$Graphqelm_SelectionSet$with,
-	_user$project$Trash_Object_SaveTrash$trash(_user$project$Model$trash),
+	_user$project$Trash_Object_SaveTrash$trash(_user$project$TrashPage_Model$trash),
 	_user$project$Trash_Object_SaveTrash$selection(_elm_lang$core$Basics$identity));
-var _user$project$Model$Response = function (a) {
+var _user$project$TrashPage_Model$Stats = F2(
+	function (a, b) {
+		return {gallonsPerPersonPerWeek: a, litresPerPersonPerWeek: b};
+	});
+var _user$project$TrashPage_Model$stats = A2(
+	_dillonkearns$graphqelm$Graphqelm_SelectionSet$with,
+	_user$project$Trash_Object_StatsNode$litresPerPersonPerWeek,
+	A2(
+		_dillonkearns$graphqelm$Graphqelm_SelectionSet$with,
+		_user$project$Trash_Object_StatsNode$gallonsPerPersonPerWeek,
+		_user$project$Trash_Object_StatsNode$selection(_user$project$TrashPage_Model$Stats)));
+var _user$project$TrashPage_Model$ResponseSave = function (a) {
 	return {trash: a};
 };
-var _user$project$Model$Jwt = function (a) {
+var _user$project$TrashPage_Model$ResponseLookup = F2(
+	function (a, b) {
+		return {trash: a, stats: b};
+	});
+var _user$project$TrashPage_Model$Jwt = function (a) {
 	return {ctor: 'Jwt', _0: a};
 };
-var _user$project$Model$TwoDaysAgo = {ctor: 'TwoDaysAgo'};
-var _user$project$Model$Yesterday = {ctor: 'Yesterday'};
-var _user$project$Model$Today = {ctor: 'Today'};
-var _user$project$Model$emptyPage = {
-	day: _user$project$Model$Today,
+var _user$project$TrashPage_Model$TwoDaysAgo = {ctor: 'TwoDaysAgo'};
+var _user$project$TrashPage_Model$Yesterday = {ctor: 'Yesterday'};
+var _user$project$TrashPage_Model$Today = {ctor: 'Today'};
+var _user$project$TrashPage_Model$emptyPage = {
+	day: _user$project$TrashPage_Model$Today,
 	timestamp: 0,
-	jwt: _user$project$Model$Jwt('invalid token'),
+	jwt: _user$project$TrashPage_Model$Jwt('invalid token'),
 	metric: _user$project$Trash_Enum_Metric$Gallons,
 	volume: _elm_lang$core$Maybe$Nothing,
+	stats: {perPersonPerWeek: 0},
 	error: _elm_lang$core$Maybe$Nothing,
 	changed: false
 };
 
-var _user$project$Trash_Mutation$saveTrash = F3(
-	function (fillInOptionals, requiredArgs, object) {
-		var filledInOptionals = fillInOptionals(
-			{volume: _dillonkearns$graphqelm$Graphqelm_OptionalArgument$Absent, metric: _dillonkearns$graphqelm$Graphqelm_OptionalArgument$Absent});
-		var optionalArgs = A2(
-			_elm_lang$core$List$filterMap,
-			_elm_lang$core$Basics$identity,
-			{
-				ctor: '::',
-				_0: A3(_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$optional, 'volume', filledInOptionals.volume, _dillonkearns$graphqelm$Graphqelm_Internal_Encode$float),
-				_1: {
-					ctor: '::',
-					_0: A3(
-						_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$optional,
-						'metric',
-						filledInOptionals.metric,
-						_dillonkearns$graphqelm$Graphqelm_Internal_Encode$enum(_user$project$Trash_Enum_Metric$toString)),
-					_1: {ctor: '[]'}
-				}
-			});
-		return A4(
-			_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selectionField,
-			'saveTrash',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				optionalArgs,
-				{
-					ctor: '::',
-					_0: A3(
-						_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$required,
-						'date',
-						requiredArgs.date,
-						function (_p0) {
-							var _p1 = _p0;
-							return _dillonkearns$graphqelm$Graphqelm_Internal_Encode$string(_p1._0);
-						}),
-					_1: {
-						ctor: '::',
-						_0: A3(_dillonkearns$graphqelm$Graphqelm_Internal_Builder_Argument$required, 'token', requiredArgs.token, _dillonkearns$graphqelm$Graphqelm_Internal_Encode$string),
-						_1: {ctor: '[]'}
-					}
-				}),
-			object,
-			function (_p2) {
-				return _elm_lang$core$Json_Decode$nullable(
-					_elm_lang$core$Basics$identity(_p2));
-			});
-	});
-var _user$project$Trash_Mutation$selection = function (constructor) {
-	return _dillonkearns$graphqelm$Graphqelm_Internal_Builder_Object$selection(constructor);
-};
-var _user$project$Trash_Mutation$SaveTrashOptionalArguments = F2(
-	function (a, b) {
-		return {volume: a, metric: b};
-	});
-var _user$project$Trash_Mutation$SaveTrashRequiredArguments = F2(
-	function (a, b) {
-		return {date: a, token: b};
-	});
-
-var _user$project$Update$mutation = F4(
+var _user$project$TrashPage_Update$mutation = F4(
 	function (jwt, date, metric, maybeVol) {
 		var volume = function () {
 			var _p0 = maybeVol;
@@ -12343,13 +12475,30 @@ var _user$project$Update$mutation = F4(
 						});
 				},
 				{
-					token: _user$project$Model$jwtString(jwt),
+					token: _user$project$TrashPage_Model$jwtString(jwt),
 					date: date
 				},
-				_user$project$Model$trashField),
-			_user$project$Trash_Mutation$selection(_user$project$Model$Response));
+				_user$project$TrashPage_Model$saveTrashField),
+			_user$project$Trash_Mutation$selection(_user$project$TrashPage_Model$ResponseSave));
 	});
-var _user$project$Update$trashVolume = F2(
+var _user$project$TrashPage_Update$lookupQuery = F2(
+	function (jwt, date) {
+		var token = _user$project$TrashPage_Model$jwtString(jwt);
+		return A2(
+			_dillonkearns$graphqelm$Graphqelm_SelectionSet$with,
+			A2(
+				_user$project$Trash_Query$stats,
+				{token: token},
+				_user$project$TrashPage_Model$stats),
+			A2(
+				_dillonkearns$graphqelm$Graphqelm_SelectionSet$with,
+				A2(
+					_user$project$Trash_Query$trash,
+					{token: token, date: date},
+					_user$project$TrashPage_Model$trash),
+				_user$project$Trash_Query$selection(_user$project$TrashPage_Model$ResponseLookup)));
+	});
+var _user$project$TrashPage_Update$trashVolume = F2(
 	function (trash, metric) {
 		var _p1 = metric;
 		if (_p1.ctor === 'Gallons') {
@@ -12358,7 +12507,7 @@ var _user$project$Update$trashVolume = F2(
 			return trash.litres;
 		}
 	});
-var _user$project$Update$responseErrorMessage = function (error) {
+var _user$project$TrashPage_Update$responseErrorMessage = function (error) {
 	var _p2 = error;
 	if (_p2.ctor === 'HttpError') {
 		return _elm_lang$core$Basics$toString(_p2._0);
@@ -12376,7 +12525,7 @@ var _user$project$Update$responseErrorMessage = function (error) {
 			_p2._1);
 	}
 };
-var _user$project$Update$gotResponse = F2(
+var _user$project$TrashPage_Update$gotResponseSave = F2(
 	function (r, model) {
 		var _p3 = r;
 		if (_p3.ctor === 'Err') {
@@ -12385,7 +12534,7 @@ var _user$project$Update$gotResponse = F2(
 				{
 					volume: _elm_lang$core$Maybe$Nothing,
 					error: _elm_lang$core$Maybe$Just(
-						_user$project$Update$responseErrorMessage(_p3._0))
+						_user$project$TrashPage_Update$responseErrorMessage(_p3._0))
 				});
 		} else {
 			var _p4 = _p3._0.trash;
@@ -12400,16 +12549,54 @@ var _user$project$Update$gotResponse = F2(
 				return _elm_lang$core$Native_Utils.update(
 					model,
 					{
-						volume: A2(_user$project$Update$trashVolume, _p4._0, model.metric),
+						volume: A2(_user$project$TrashPage_Update$trashVolume, _p4._0, model.metric),
 						changed: false
 					});
 			}
 		}
 	});
-var _user$project$Update$changeAmount = F2(
-	function (txt, model) {
-		var _p5 = _elm_lang$core$String$toFloat(txt);
+var _user$project$TrashPage_Update$gotResponseLookup = F2(
+	function (r, model) {
+		var _p5 = r;
 		if (_p5.ctor === 'Err') {
+			return _elm_lang$core$Native_Utils.update(
+				model,
+				{
+					volume: _elm_lang$core$Maybe$Nothing,
+					error: _elm_lang$core$Maybe$Just(
+						_user$project$TrashPage_Update$responseErrorMessage(_p5._0))
+				});
+		} else {
+			var _p8 = _p5._0;
+			var statsPPPW = function () {
+				var _p6 = model.metric;
+				if (_p6.ctor === 'Gallons') {
+					return _p8.stats.gallonsPerPersonPerWeek;
+				} else {
+					return _p8.stats.litresPerPersonPerWeek;
+				}
+			}();
+			var newVolume = function () {
+				var _p7 = _p8.trash;
+				if (_p7.ctor === 'Nothing') {
+					return _elm_lang$core$Maybe$Nothing;
+				} else {
+					return A2(_user$project$TrashPage_Update$trashVolume, _p7._0, model.metric);
+				}
+			}();
+			return _elm_lang$core$Native_Utils.update(
+				model,
+				{
+					volume: newVolume,
+					changed: false,
+					stats: {perPersonPerWeek: statsPPPW}
+				});
+		}
+	});
+var _user$project$TrashPage_Update$changeAmount = F2(
+	function (txt, model) {
+		var _p9 = _elm_lang$core$String$toFloat(txt);
+		if (_p9.ctor === 'Err') {
 			return _elm_lang$core$Native_Utils.eq(txt, '') ? _elm_lang$core$Native_Utils.update(
 				model,
 				{volume: _elm_lang$core$Maybe$Nothing, error: _elm_lang$core$Maybe$Nothing, changed: true}) : _elm_lang$core$Native_Utils.update(
@@ -12420,8 +12607,8 @@ var _user$project$Update$changeAmount = F2(
 					changed: true
 				});
 		} else {
-			var _p6 = _p5._0;
-			return (_elm_lang$core$Native_Utils.cmp(_p6, 0) < 0) ? _elm_lang$core$Native_Utils.update(
+			var _p10 = _p9._0;
+			return (_elm_lang$core$Native_Utils.cmp(_p10, 0) < 0) ? _elm_lang$core$Native_Utils.update(
 				model,
 				{
 					volume: _elm_lang$core$Maybe$Nothing,
@@ -12430,60 +12617,88 @@ var _user$project$Update$changeAmount = F2(
 				}) : _elm_lang$core$Native_Utils.update(
 				model,
 				{
-					volume: _elm_lang$core$Maybe$Just(_p6),
+					volume: _elm_lang$core$Maybe$Just(_p10),
 					error: _elm_lang$core$Maybe$Nothing,
 					changed: true
 				});
 		}
 	});
-var _user$project$Update$gqlHost = '/graphql/';
-var _user$project$Update$GotResponse = function (a) {
-	return {ctor: 'GotResponse', _0: a};
+var _user$project$TrashPage_Update$gqlHost = '/graphql/';
+var _user$project$TrashPage_Update$GotResponseSave = function (a) {
+	return {ctor: 'GotResponseSave', _0: a};
 };
-var _user$project$Update$savePage = function (model) {
+var _user$project$TrashPage_Update$savePage = function (model) {
 	return A2(
 		_dillonkearns$graphqelm$Graphqelm_Http$send,
-		_user$project$Update$GotResponse,
+		_user$project$TrashPage_Update$GotResponseSave,
 		A2(
 			_dillonkearns$graphqelm$Graphqelm_Http$mutationRequest,
-			_user$project$Update$gqlHost,
+			_user$project$TrashPage_Update$gqlHost,
 			A4(
-				_user$project$Update$mutation,
+				_user$project$TrashPage_Update$mutation,
 				model.jwt,
-				A2(_user$project$Model$relativeDate, model.timestamp, model.day),
+				A2(_user$project$TrashPage_Model$relativeDate, model.timestamp, model.day),
 				model.metric,
 				model.volume)));
 };
-var _user$project$Update$update = F2(
+var _user$project$TrashPage_Update$SavePage = {ctor: 'SavePage'};
+var _user$project$TrashPage_Update$GotResponseLookup = function (a) {
+	return {ctor: 'GotResponseLookup', _0: a};
+};
+var _user$project$TrashPage_Update$lookupPage = function (model) {
+	return A2(
+		_dillonkearns$graphqelm$Graphqelm_Http$send,
+		_user$project$TrashPage_Update$GotResponseLookup,
+		A2(
+			_dillonkearns$graphqelm$Graphqelm_Http$queryRequest,
+			_user$project$TrashPage_Update$gqlHost,
+			A2(
+				_user$project$TrashPage_Update$lookupQuery,
+				model.jwt,
+				A2(_user$project$TrashPage_Model$relativeDate, model.timestamp, model.day))));
+};
+var _user$project$TrashPage_Update$update = F2(
 	function (msg, model) {
-		var _p7 = msg;
-		switch (_p7.ctor) {
+		var _p11 = msg;
+		switch (_p11.ctor) {
 			case 'ChangeAmount':
 				return {
 					ctor: '_Tuple2',
-					_0: A2(_user$project$Update$changeAmount, _p7._0, model),
+					_0: A2(_user$project$TrashPage_Update$changeAmount, _p11._0, model),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'GotResponse':
+			case 'LookupPage':
 				return {
 					ctor: '_Tuple2',
-					_0: A2(_user$project$Update$gotResponse, _p7._0, model),
+					_0: model,
+					_1: _user$project$TrashPage_Update$lookupPage(model)
+				};
+			case 'GotResponseLookup':
+				return {
+					ctor: '_Tuple2',
+					_0: A2(_user$project$TrashPage_Update$gotResponseLookup, _p11._0, model),
 					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'SavePage':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$TrashPage_Update$savePage(model)
 				};
 			default:
 				return {
 					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Update$savePage(model)
+					_0: A2(_user$project$TrashPage_Update$gotResponseSave, _p11._0, model),
+					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
 	});
-var _user$project$Update$SavePage = {ctor: 'SavePage'};
-var _user$project$Update$ChangeAmount = function (a) {
+var _user$project$TrashPage_Update$LookupPage = {ctor: 'LookupPage'};
+var _user$project$TrashPage_Update$ChangeAmount = function (a) {
 	return {ctor: 'ChangeAmount', _0: a};
 };
 
-var _user$project$View$viewErrors = function (error) {
+var _user$project$TrashPage_View$viewErrors = function (error) {
 	var _p0 = error;
 	if (_p0.ctor === 'Nothing') {
 		return _elm_lang$html$Html$text('');
@@ -12506,7 +12721,25 @@ var _user$project$View$viewErrors = function (error) {
 			});
 	}
 };
-var _user$project$View$inputVolume = function (metric) {
+var _user$project$TrashPage_View$viewStats = function (model) {
+	return A2(
+		_elm_lang$html$Html$p,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('stats'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'The average is ',
+					_elm_lang$core$Basics$toString(model.stats.perPersonPerWeek))),
+			_1: {ctor: '[]'}
+		});
+};
+var _user$project$TrashPage_View$inputVolume = function (metric) {
 	return A2(
 		_elm_lang$html$Html$p,
 		{
@@ -12523,7 +12756,7 @@ var _user$project$View$inputVolume = function (metric) {
 					_0: _elm_lang$html$Html_Attributes$placeholder('How many?'),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html_Events$onInput(_user$project$Update$ChangeAmount),
+						_0: _elm_lang$html$Html_Events$onInput(_user$project$TrashPage_Update$ChangeAmount),
 						_1: {ctor: '[]'}
 					}
 				},
@@ -12543,9 +12776,9 @@ var _user$project$View$inputVolume = function (metric) {
 			}
 		});
 };
-var _user$project$View$viewTrash = F3(
+var _user$project$TrashPage_View$viewTrash = F3(
 	function (amount, metric, day) {
-		var when = _user$project$Model$whichDayToString(day);
+		var when = _user$project$TrashPage_Model$whichDayToString(day);
 		var metricWord = _elm_lang$core$String$toLower(
 			_elm_lang$core$Basics$toString(metric));
 		var howMuch = function () {
@@ -12589,20 +12822,20 @@ var _user$project$View$viewTrash = F3(
 				_1: {ctor: '[]'}
 			});
 	});
-var _user$project$View$noSaveButtonIcon = '/static/trashinator/checkmark-faded.svg';
-var _user$project$View$saveButtonIcon = '/static/trashinator/checkmark.svg';
-var _user$project$View$saveButton = function (model) {
+var _user$project$TrashPage_View$noSaveButtonIcon = '/static/trashinator/checkmark-faded.svg';
+var _user$project$TrashPage_View$saveButtonIcon = '/static/trashinator/checkmark.svg';
+var _user$project$TrashPage_View$saveButton = function (model) {
 	return (model.changed && (_elm_lang$core$Native_Utils.eq(model.error, _elm_lang$core$Maybe$Nothing) && (!_elm_lang$core$Native_Utils.eq(model.volume, _elm_lang$core$Maybe$Nothing)))) ? A2(
 		_elm_lang$html$Html$img,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Events$onClick(_user$project$Update$SavePage),
+			_0: _elm_lang$html$Html_Events$onClick(_user$project$TrashPage_Update$SavePage),
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$id('saveButton'),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$src(_user$project$View$saveButtonIcon),
+					_0: _elm_lang$html$Html_Attributes$src(_user$project$TrashPage_View$saveButtonIcon),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$alt('save'),
@@ -12618,7 +12851,7 @@ var _user$project$View$saveButton = function (model) {
 			_0: _elm_lang$html$Html_Attributes$id('saveButton'),
 			_1: {
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$src(_user$project$View$noSaveButtonIcon),
+				_0: _elm_lang$html$Html_Attributes$src(_user$project$TrashPage_View$noSaveButtonIcon),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$html$Html_Attributes$alt('can\'t save'),
@@ -12628,30 +12861,34 @@ var _user$project$View$saveButton = function (model) {
 		},
 		{ctor: '[]'});
 };
-var _user$project$View$view = function (model) {
+var _user$project$TrashPage_View$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: A3(_user$project$View$viewTrash, model.volume, model.metric, model.day),
+			_0: A3(_user$project$TrashPage_View$viewTrash, model.volume, model.metric, model.day),
 			_1: {
 				ctor: '::',
-				_0: _user$project$View$inputVolume(model.metric),
+				_0: _user$project$TrashPage_View$inputVolume(model.metric),
 				_1: {
 					ctor: '::',
-					_0: _user$project$View$saveButton(model),
+					_0: _user$project$TrashPage_View$saveButton(model),
 					_1: {
 						ctor: '::',
-						_0: _user$project$View$viewErrors(model.error),
-						_1: {ctor: '[]'}
+						_0: _user$project$TrashPage_View$viewStats(model),
+						_1: {
+							ctor: '::',
+							_0: _user$project$TrashPage_View$viewErrors(model.error),
+							_1: {ctor: '[]'}
+						}
 					}
 				}
 			}
 		});
 };
 
-var _user$project$Main$init = function (flags) {
+var _user$project$TrashPage_Main$init = function (flags) {
 	var readMetric = function (s) {
 		var _p0 = _elm_lang$core$String$toLower(s);
 		if (_p0 === 'litres') {
@@ -12661,26 +12898,26 @@ var _user$project$Main$init = function (flags) {
 		}
 	};
 	var newPage = _elm_lang$core$Native_Utils.update(
-		_user$project$Model$emptyPage,
+		_user$project$TrashPage_Model$emptyPage,
 		{
-			jwt: _user$project$Model$Jwt(flags.token),
+			jwt: _user$project$TrashPage_Model$Jwt(flags.token),
 			timestamp: flags.timestamp,
 			metric: readMetric(flags.metric)
 		});
 	return {
 		ctor: '_Tuple2',
 		_0: newPage,
-		_1: _user$project$Update$savePage(newPage)
+		_1: _user$project$TrashPage_Update$lookupPage(newPage)
 	};
 };
-var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
+var _user$project$TrashPage_Main$main = _elm_lang$html$Html$programWithFlags(
 	{
-		init: _user$project$Main$init,
-		update: _user$project$Update$update,
+		init: _user$project$TrashPage_Main$init,
+		update: _user$project$TrashPage_Update$update,
 		subscriptions: function (_p1) {
 			return _elm_lang$core$Platform_Sub$none;
 		},
-		view: _user$project$View$view
+		view: _user$project$TrashPage_View$view
 	})(
 	A2(
 		_elm_lang$core$Json_Decode$andThen,
@@ -12699,15 +12936,16 @@ var _user$project$Main$main = _elm_lang$html$Html$programWithFlags(
 				A2(_elm_lang$core$Json_Decode$field, 'timestamp', _elm_lang$core$Json_Decode$float));
 		},
 		A2(_elm_lang$core$Json_Decode$field, 'metric', _elm_lang$core$Json_Decode$string)));
-var _user$project$Main$Flags = F3(
+var _user$project$TrashPage_Main$Flags = F3(
 	function (a, b, c) {
 		return {timestamp: a, token: b, metric: c};
 	});
 
 var Elm = {};
-Elm['Main'] = Elm['Main'] || {};
-if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', undefined);
+Elm['TrashPage'] = Elm['TrashPage'] || {};
+Elm['TrashPage']['Main'] = Elm['TrashPage']['Main'] || {};
+if (typeof _user$project$TrashPage_Main$main !== 'undefined') {
+    _user$project$TrashPage_Main$main(Elm['TrashPage']['Main'], 'TrashPage.Main', undefined);
 }
 
 if (typeof define === "function" && define['amd'])

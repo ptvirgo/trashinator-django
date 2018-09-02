@@ -1,18 +1,19 @@
-module Update exposing (..)
+module TrashPage.Update exposing (..)
 
 import Result
 import Time
 
 import Graphqelm.Http
-import Graphqelm.Operation exposing (RootMutation)
+import Graphqelm.Operation exposing (RootQuery, RootMutation)
 import Graphqelm.OptionalArgument exposing (..)
 import Graphqelm.SelectionSet exposing (SelectionSet, with)
 
 import Trash.Enum.Metric exposing (Metric (..))
+import Trash.Query as Query
 import Trash.Mutation as Mutation
 import Trash.Scalar
 
-import Model exposing (..)
+import TrashPage.Model exposing (..)
 
 gqlHost : String
 gqlHost = "/graphql/"
@@ -20,15 +21,20 @@ gqlHost = "/graphql/"
 {-| Elm Messages |-}
 type Msg =
     ChangeAmount String
-    | SavePage
-    | GotResponse (Result (Graphqelm.Http.Error Response) Response)
+    -- | LookupPage
+    -- | GotResponseLookup
+    --     (Result (Graphqelm.Http.Error ResponseLookup) ResponseLookup)
+    -- | SavePage
+    -- | GotResponseSave (Result (Graphqelm.Http.Error ResponseSave) ResponseSave)
 
 {-| Update |-}
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model = case msg of
     (ChangeAmount s) -> ( changeAmount s model, Cmd.none )
-    (GotResponse r) -> ( gotResponse r model, Cmd.none )
-    SavePage -> ( model, savePage model )
+    -- LookupPage -> ( model, lookupPage model )
+    -- (GotResponseLookup r) -> ( gotResponseLookup r model, Cmd.none )
+    -- SavePage -> ( model, savePage model )
+    -- (GotResponseSave r) -> ( gotResponseSave r model, Cmd.none )
 
 changeAmount : String -> Model -> Model
 changeAmount txt model = case String.toFloat txt of
@@ -57,8 +63,31 @@ changeAmount txt model = case String.toFloat txt of
 
 -- Handle Responses
 
-gotResponse : Result (Graphqelm.Http.Error Response) Response -> Model -> Model
-gotResponse r model = case r of
+gotResponseLookup : Result (Graphqelm.Http.Error ResponseLookup) ResponseLookup
+                    -> Model -> Model
+gotResponseLookup r model = case r of
+    (Err err) ->
+        { model | volume = Nothing
+        , error = Just <| responseErrorMessage err
+        }
+    (Ok response) ->
+        let newVolume =
+            case response.trash of
+                Nothing -> Nothing
+                (Just trash) -> trashVolume trash model.metric
+            statsPPPW = case model.metric of
+                Gallons -> response.stats.gallonsPerPersonPerWeek
+                Litres -> response.stats.litresPerPersonPerWeek
+        in
+            { model
+            | volume = newVolume
+            , changed = False
+            , stats = { perPersonPerWeek = statsPPPW }
+            }
+
+gotResponseSave : Result (Graphqelm.Http.Error ResponseSave) ResponseSave
+                  -> Model -> Model
+gotResponseSave r model = case r of
     (Err err) ->
         { model | volume = Nothing
         , error = Just <| responseErrorMessage err
@@ -68,7 +97,7 @@ gotResponse r model = case r of
         (Just trash) ->
             { model | volume = trashVolume trash model.metric, changed = False }
 
-responseErrorMessage : Graphqelm.Http.Error Response -> String
+responseErrorMessage : Graphqelm.Http.Error a -> String -- ResponseSave -> String
 responseErrorMessage error = case error of
     (Graphqelm.Http.HttpError err) -> toString err
     (Graphqelm.Http.GraphqlError _ errs) ->
@@ -79,7 +108,20 @@ trashVolume trash metric = case metric of
     Gallons -> trash.gallons
     Litres -> trash.litres
 
--- GraphQL Mutation
+-- GraphQL
+
+lookupPage : Model -> Cmd Msg
+lookupPage model =
+    lookupQuery model.jwt (relativeDate model.timestamp model.day)
+    |> Graphqelm.Http.queryRequest gqlHost
+    |> Graphqelm.Http.send GotResponseLookup
+
+lookupQuery : Jwt -> Trash.Scalar.Date -> SelectionSet ResponseLookup RootQuery
+lookupQuery jwt date =
+    let token = jwtString jwt
+    in Query.selection ResponseLookup
+        |> with ( Query.trash { token = token, date = date } trash )
+        |> with ( Query.stats { token = token } stats )
 
 savePage : Model -> Cmd Msg
 savePage model =
@@ -89,16 +131,15 @@ savePage model =
             model.metric
             model.volume
     |> Graphqelm.Http.mutationRequest gqlHost
-    |> Graphqelm.Http.send GotResponse
-
+    |> Graphqelm.Http.send GotResponseSave
 
 mutation : Jwt -> Trash.Scalar.Date -> Metric -> Maybe Float ->
-           SelectionSet Response RootMutation
+           SelectionSet ResponseSave RootMutation
 mutation jwt date metric maybeVol =
     let volume = case maybeVol of
         Nothing -> Absent
         (Just x) -> Present x
-    in Mutation.selection Response
+    in Mutation.selection ResponseSave
     |> with ( Mutation.saveTrash
         (\opts ->
             { opts | metric = Present metric
@@ -106,5 +147,5 @@ mutation jwt date metric maybeVol =
             }
         )
         { token = jwtString jwt, date = date }
-        trashField
+        saveTrashField
     )

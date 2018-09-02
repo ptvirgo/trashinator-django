@@ -1,4 +1,4 @@
-module Main exposing (..)
+module TrashPage.Main exposing (..)
 
 import Html exposing (..)
 import Time exposing (every, second)
@@ -6,9 +6,9 @@ import Date
 
 import Trash.Enum.Metric exposing (Metric (..))
 
-import Model exposing (Model, Jwt (..), emptyPage)
-import Update exposing (Msg, update, savePage)
-import View exposing (view)
+import TrashPage.Model exposing (Model, Jwt (..), emptyPage)
+import TrashPage.Update exposing (Msg, update, lookupPage)
+import TrashPage.View exposing (view)
 
 type alias Flags =
     { timestamp : Float
@@ -28,7 +28,7 @@ init flags =
             , metric = readMetric flags.metric
             }
     in
-    ( newPage, savePage newPage )
+    ( newPage, lookupPage newPage )
     
 
 main : Program Flags Model Msg

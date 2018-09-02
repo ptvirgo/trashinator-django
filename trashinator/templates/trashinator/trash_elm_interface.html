@@ -12,7 +12,7 @@
 <script type="text/javascript">
 var elmDiv = document.getElementById("trash");
 var timestamp = (new Date).getTime();
-var app = Elm.Main.embed(
+var app = Elm.TrashPage.Main.embed(
     elmDiv, { token: "{{ token }}", metric: "{{ metric }}", timestamp: timestamp });
 </script>
 {% endblock scripts %}
