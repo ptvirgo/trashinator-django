@@ -81,7 +81,7 @@ type alias TPEntry =
 {-| Visible stats |-}
 type alias TPStats =
     { sitePerPersonPerWeek : Float
-    , siteStandardDev : Float
+    , siteStandardDeviation : Float
     , userPerPersonPerWeek : Float
     }
 
@@ -102,7 +102,7 @@ emptyPage =
         }
     , stats =
         { sitePerPersonPerWeek = 0
-        , siteStandardDev = 0
+        , siteStandardDeviation = 0
         , userPerPersonPerWeek = 0
         }
     }
@@ -144,8 +144,13 @@ type alias Model = TrashPage
 type alias GqlTrash = { volume : Float }
 
 type alias GqlUserStats = { perPersonPerWeek : Float }
-type alias GqlSiteStats = { perPersonPerWeek : Float, stdDeviation : Float }
+type alias GqlSiteStats =
+    { perPersonPerWeek : Float
+    , standardDeviation : Float
+    }
 type alias GqlPageStats = { user : GqlUserStats, site: GqlSiteStats }
+
+type GqlResponse = TrashData (Maybe GqlTrash) | StatsData GqlPageStats
 
 parseTrash : Metric -> SelectionSet GqlTrash Trash.Object.TrashNode
 parseTrash metric =

@@ -1,6 +1,8 @@
 module TestTrashPage exposing (..)
 
+import Result
 import Time
+import Graphqelm.Http
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, float, intRange, list, string)
@@ -119,13 +121,42 @@ testChangeVolume = describe "ChangeVolume"
         in Expect.equal
             ( update (ChangeVolume "") testPage )
             ( newPage, Cmd.none )
-{-
-testChangeAmount : Test
-testChangeAmount = describe "Test ChangeAmount"
-    , test "ChangeAmount with empty string is Nothing" <| \_ ->
-        let newPage = { testPage | volume = Nothing, changed = True }
+    ]
+
+testGql : Test
+testGql = describe "GraphQL helpers"
+    [ test "gotGqlResponse handles trash = Nothing" <| \_ ->
+        let newPage = testPage
+                |> setPageVolume Nothing
+                |> setPageError Nothing
+                |> setPageChanged False
         in Expect.equal
-            ( update (ChangeAmount "") testPage)
-            ( newPage, Cmd.none )
-    ] -}
+            ( gotGqlResponse (TrashData Nothing) testPage ) newPage
+    , fuzz (intRange 0 10) "gotGqlResponse handles trash values" <| \i ->
+        let x = toFloat i
+            newPage = testPage
+                |> setPageVolume (Just x)
+                |> setPageError Nothing
+                |> setPageChanged False
+        in Expect.equal
+            ( gotGqlResponse (TrashData <| Just { volume = x }) testPage )
+            newPage
+    , fuzz3 (intRange 1 10) (intRange 1 10) (intRange 1 10)
+            "gotGqlResponse handles stats" <| \a b c ->
+        let x = toFloat a
+            y = toFloat b
+            z = toFloat c
+            gqlr =
+                { user = { perPersonPerWeek = x }
+                , site = { perPersonPerWeek = y, standardDeviation = z }
+                }
+            newPage =
+                { testPage
+                | stats =
+                    { sitePerPersonPerWeek = y
+                    , siteStandardDeviation = z
+                    , userPerPersonPerWeek = x
+                    }
+                }
+        in Expect.equal ( gotGqlResponse (StatsData gqlr) testPage ) newPage
     ]
