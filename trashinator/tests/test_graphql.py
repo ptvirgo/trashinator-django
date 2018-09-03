@@ -99,7 +99,6 @@ class TestSaveTrash(TestCase):
 
     def test_resave_trash(self):
         """Trash can be overwritten"""
-
         profile = TrashProfileFactory()
         TrashFactory(household=profile.current_household)
 
@@ -129,6 +128,38 @@ class TestSaveTrash(TestCase):
             household=profile.current_household, date=test_data["date"])
 
         self.assertEqual(lookup.litres, test_data["volume"])
+
+    def test_change_trash_household(self):
+        """
+        If the user changes their household and re-saves, the household on
+        the re-save must be updated to match the current household
+        """
+        profile = TrashProfileFactory()
+        trash = TrashFactory(household=profile.current_household)
+        original_household = trash.household
+
+        profile.current_household = HouseHoldFactory(user=profile.user)
+        profile.save()
+
+        test_data = {
+            "date": trash.date.isoformat(),
+            "metric": "Litres",
+            "token": utils.user_jwt(profile.user)
+        }
+
+        query = """mutation
+            SaveTrash($date: Date!, $token: String!, $metric: Metric!){
+            saveTrash(date: $date, metric: $metric, token: $token){
+            trash { date litres }}}"""
+
+        result = self.schema.execute(query, variable_values=test_data)
+
+        if result.errors:
+            raise AssertionError(result.errors)
+
+        trash.refresh_from_db()
+        self.assertEqual(trash.household.pk, profile.current_household.pk)
+        self.assertNotEqual(trash.household.pk, original_household.pk)
 
 
 class TestReadStats(TestCase):

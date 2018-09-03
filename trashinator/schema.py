@@ -83,6 +83,10 @@ class SaveTrash(graphene.Mutation):
                 date=date,
                 litres=0)
 
+        if trash.household != user.trash_profile.current_household:
+            trash.household = user.trash_profile.current_household
+            trash.save()
+
         if volume is not None:
             if metric == Metric.Gallons:
                 trash.gallons = volume
