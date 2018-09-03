@@ -33,6 +33,8 @@ class TrashProfileView(LoginRequiredMixin, View):
             profile.save()
             status = 200
 
+            return redirect("trashinator:trash")
+
         else:
             status = 400
 
