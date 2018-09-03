@@ -1,6 +1,7 @@
 import datetime
 from enum import Enum
 from math import ceil
+import logging
 import pycountry
 import statistics
 
@@ -15,6 +16,9 @@ from .validators import zero_or_more, one_or_more
 
 def litres_to_gallons(litres):
     return litres / 3.785411784
+
+
+logger = logging.getLogger(__name__)
 
 
 # Model choices
@@ -203,24 +207,16 @@ class Trash(models.Model):
 
     @classmethod
     def create(cls, household, *args, **kwargs):
-        last_trash = Trash.objects.filter(
-            household=household).order_by("-date").first()
-
-        cutoff = datetime.date.today() - datetime.timedelta(
-            days=settings.TRASHINATOR["MAX_TRACKING_SPLIT"])
 
         if "tracking_period" in kwargs:
             tracking_period = kwargs.pop("tracking_period")
-        elif last_trash is not None \
-                and (last_trash.tracking_period.status ==
-                     TrackingPeriodStatus.PROGRESS.name) \
-                and (last_trash.tracking_period.latest > cutoff):
-            tracking_period = last_trash.tracking_period
         else:
-            tracking_period = TrackingPeriod.objects.create()
+            date = kwargs.get("date", datetime.date.today())
+            tracking_period = cls._prep_tracking_period(date, household)
 
         trash = cls(*args, household=household,
                     tracking_period=tracking_period, **kwargs)
+        trash.save()
         return trash
 
     @property
@@ -238,6 +234,41 @@ class Trash(models.Model):
     @gallons.setter
     def gallons(self, gallons):
         self._volume = gallons * 3.785411784
+
+    @staticmethod
+    def _prep_tracking_period(new_trash_date, new_trash_household):
+        debug_msg = "Trash._prep_tracking_period returned {}: {}"
+
+        last_trash = Trash.objects.filter(
+            household=new_trash_household).order_by("-date").first()
+
+        if last_trash is None:
+            logger.debug(debug_msg.format("new", "last trash was None"))
+            return TrackingPeriod.objects.create()
+
+        if last_trash.tracking_period.status !=\
+                TrackingPeriodStatus.PROGRESS.name:
+            logger.debug(debug_msg.format("new", "last_trash.status {}".format(
+                last_trash.tracking_period.status)))
+            return TrackingPeriod.objects.create()
+
+        latest = last_trash.tracking_period.latest
+        cutoff = datetime.date.today() - datetime.timedelta(
+            days=settings.TRASHINATOR["MAX_TRACKING_SPLIT"])
+
+        if latest < cutoff:
+            logger.debug(debug_msg.format("new", "latest < cutoff"))
+            return TrackingPeriod.objects.create()
+
+        split = new_trash_date - latest
+        if abs(split.days) > settings.TRASHINATOR["MAX_TRACKING_SPLIT"]:
+            logger.debug(debug_msg.format(
+                "new", "new_trash_date {}, too far from latest {}".format(
+                    new_trash_date.isoformat(), latest.isoformat())))
+            return TrackingPeriod.objects.create()
+
+        logger.debug(debug_msg.format("last_trash.tracking_period", ""))
+        return last_trash.tracking_period
 
     def __str__(self):
         return "Trash(user={}, date={}, _volume={})".format(

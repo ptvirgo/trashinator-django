@@ -54,6 +54,7 @@ class TrashQuery(graphene.ObjectType):
         except Trash.DoesNotExist:
             return
 
+
 class Metric(graphene.Enum):
     Gallons = 1
     Litres = 2
@@ -152,7 +153,7 @@ class UserStatsNode(graphene.ObjectType):
 
             if lpw is not None:
                 count += 1
-                lpws.append(lpw) 
+                lpws.append(lpw)
 
         if count > 0:
             mean = statistics.mean(lpws)

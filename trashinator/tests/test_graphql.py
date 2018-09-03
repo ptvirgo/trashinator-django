@@ -191,3 +191,56 @@ class TestReadStats(TestCase):
         self.assertEqual(
             result.data["stats"]["user"]["gallonsPerPersonPerWeek"],
             period.gallons_per_person_per_week)
+
+    def test_tracking_period_stats_basic_math(self):
+        """Do you even math bro?"""
+
+        today = datetime.date.today()
+
+        trash1 = TrashFactory(date=today)
+        trash1.gallons = 5
+        trash1.save()
+
+        trash1.household.population = 4
+        trash1.household.save()
+
+        for i in range(3):
+            date = today - datetime.timedelta(days=i+1)
+            Trash.create(gallons=5, household=trash1.household, date=date,
+                         tracking_period=trash1.tracking_period)
+
+        self.assertEqual(
+            trash1.tracking_period.gallons_per_person_per_week, 5,
+            msg="model with single week: {}".format(
+                trash1.household.trash_set.all()))
+
+        six_months_ago = datetime.date.today() - datetime.timedelta(
+            days=6 * 30)
+
+        trash2 = TrashFactory(household=trash1.household, date=six_months_ago)
+        trash2.gallons = 4
+        trash2.save()
+
+        for i in range(3):
+            date = six_months_ago - datetime.timedelta(days=i+1)
+            Trash.create(gallons=4, household=trash1.household, date=date,
+                         tracking_period=trash2.tracking_period)
+
+        self.assertEqual(
+            trash2.tracking_period.gallons_per_person_per_week, 4,
+            msg="model with two weeks: {}".format(
+                trash1.household.trash_set.all()))
+
+        user = trash1.household.user
+        test_data = {"token": utils.user_jwt(user)}
+
+        query = """query Stats($token: String!){stats(token: $token){
+            user {gallonsPerPersonPerWeek gallonsPerPersonPerWeek}}}"""
+
+        result = self.schema.execute(query, variable_values=test_data)
+
+        if result.errors:
+            raise AssertionError(result.errors)
+
+        self.assertEqual(
+            result.data["stats"]["user"]["gallonsPerPersonPerWeek"], 4.5)
