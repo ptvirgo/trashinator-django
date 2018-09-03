@@ -177,8 +177,8 @@ parseSiteStats metric =
             , SiteStatsNode.litresPerPersonPerWeek
             )
     in SiteStatsNode.selection GqlSiteStats
-        |> with devField
         |> with volField
+        |> with devField
 
 parsePageStats : Metric -> SelectionSet GqlPageStats Trash.Object.StatsNode
 parsePageStats metric = StatsNode.selection GqlPageStats

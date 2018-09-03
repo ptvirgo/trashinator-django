@@ -12932,10 +12932,10 @@ var _user$project$TrashPage_Model$parseSiteStats = function (metric) {
 	var volField = _p6._1;
 	return A2(
 		_dillonkearns$graphqelm$Graphqelm_SelectionSet$with,
-		volField,
+		devField,
 		A2(
 			_dillonkearns$graphqelm$Graphqelm_SelectionSet$with,
-			devField,
+			volField,
 			_user$project$Trash_Object_SiteStatsNode$selection(_user$project$TrashPage_Model$GqlSiteStats)));
 };
 var _user$project$TrashPage_Model$GqlPageStats = F2(
