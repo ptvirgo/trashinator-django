@@ -76,7 +76,6 @@ class TrashElmView(LoginRequiredMixin, View):
 
         flags = {}
 
-        print("I got your profile: %s" % (request.user.trash_profile.system))
         if request.user.trash_profile.system == "U":
             flags["metric"] = "gallons"
         else:

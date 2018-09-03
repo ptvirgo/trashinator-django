@@ -49,8 +49,10 @@ class TrashQuery(graphene.ObjectType):
         if not user.is_authenticated:
             raise ValueError("not authorized")
 
-        return Trash.objects.get(household__user=user, date=date)
-
+        try:
+            return Trash.objects.get(household__user=user, date=date)
+        except Trash.DoesNotExist:
+            return
 
 class Metric(graphene.Enum):
     Gallons = 1
@@ -141,7 +143,22 @@ class UserStatsNode(graphene.ObjectType):
             trash__household__user=self.user).filter(
             status__in=["COMPLETE", "PROGRESS"]).annotate(
             trashes=Count("trash")).filter(trashes__gte=1)
-        mean = statistics.mean([p.litres_per_person_per_week for p in periods])
+
+        count = 0
+        lpws = []
+
+        for p in periods:
+            lpw = p.litres_per_person_per_week
+
+            if lpw is not None:
+                count += 1
+                lpws.append(lpw) 
+
+        if count > 0:
+            mean = statistics.mean(lpws)
+        else:
+            mean = 0
+
         return mean
 
     def resolve_litres_per_person_per_week(self, info, *args, **kwargs):
@@ -152,7 +169,8 @@ class UserStatsNode(graphene.ObjectType):
         if self.user is None:
             raise ValueError("user required")
 
-        return round(self._mean_per_week(), 2)
+        result = round(self._mean_per_week(), 2)
+        return result
 
     gallons_per_person_per_week = graphene.Float(required=True)
 
@@ -164,7 +182,8 @@ class UserStatsNode(graphene.ObjectType):
         if self.user is None:
             raise ValueError("user required")
 
-        return round(litres_to_gallons(self._mean_per_week()), 2)
+        result = round(litres_to_gallons(self._mean_per_week()), 2)
+        return result
 
 
 class StatsNode(graphene.ObjectType):
@@ -177,7 +196,8 @@ class StatsNode(graphene.ObjectType):
         return stats
 
     def resolve_user(self, info, *ags, **kwargs):
-        return UserStatsNode(user=self.user)
+        usn = UserStatsNode(user=self.user)
+        return usn
 
 
 class StatsQuery(graphene.ObjectType):

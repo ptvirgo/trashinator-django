@@ -14,7 +14,6 @@ import Trash.Object
 import Trash.Scalar
 import Trash.Enum.Metric exposing (Metric (..))
 
-
 {-| Json Web Token for Auth, must be provided by server on program init |-}
 type Jwt = Jwt String
 
@@ -70,7 +69,7 @@ type alias TPMeta =
     trash record |-}
 type alias TPOptions = { day : WhichDay }
 
-{-| Trash entry data and secondary inputs needed to save it |-} 
+{-| Trash entry data and secondary inputs needed to save it |-}
 type alias TPEntry =
     { jwt : Jwt
     , date : Trash.Scalar.Date
@@ -93,7 +92,7 @@ type alias TrashPage =
 emptyPage : TrashPage
 emptyPage =
     { meta = { timestamp = 0 , error = Nothing , changed = False }
-    , opts = { day = Today } 
+    , opts = { day = Today }
     , entry =
         { jwt = Jwt "invalid token"
         , date = relativeDate 0 Today
@@ -182,7 +181,7 @@ parseSiteStats metric =
         |> with volField
 
 parsePageStats : Metric -> SelectionSet GqlPageStats Trash.Object.StatsNode
-parsePageStats metric = StatsNode.selection GqlPageStats 
+parsePageStats metric = StatsNode.selection GqlPageStats
     |> with ( StatsNode.user <| parseUserStats metric )
     |> with ( StatsNode.site <| parseSiteStats metric )
 

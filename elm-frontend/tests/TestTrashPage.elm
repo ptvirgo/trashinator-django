@@ -13,15 +13,14 @@ import Trash.Enum.Metric exposing (Metric (..))
 
 import TrashPage.Model exposing (..)
 import TrashPage.Update exposing (..)
--- import TrashPage.View
--- import TrashPage.Main
-
+import TrashPage.View
+import TrashPage.Main
 
 testTime : Time.Time
 testTime = 1533006358000
 
 testEntry : TPEntry
-testEntry =  
+testEntry =
         { jwt = Jwt "testing token"
         , date = relativeDate testTime Today
         , metric = Gallons

@@ -21,11 +21,15 @@ gqlHost = "/graphql/"
 type Msg =
     ChangeVolume String
     | GotResponse (Result (Graphqelm.Http.Error GqlResponse) GqlResponse)
+    | Save
+    | SaveZero
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model = case msg of
     (ChangeVolume s) -> ( changeVolume s model, Cmd.none )
     (GotResponse r) -> ( gotResponse r model, Cmd.none )
+    Save -> ( model, saveTrash model )
+    SaveZero -> saveZero model
 
 changeVolume : String -> Model -> Model
 changeVolume txt model = if txt == ""
@@ -115,13 +119,18 @@ saveTrash model = Mutation.selection TrashData
     |> Graphqelm.Http.mutationRequest gqlHost
     |> Graphqelm.Http.send GotResponse
 
+saveZero : Model -> ( Model, Cmd Msg )
+saveZero model =
+    let zero = changeVolume "0" model
+    in ( zero, saveTrash zero )
+
 -- GraphQL Helpers
 
 responseErrorMessage : Graphqelm.Http.Error a -> String
 responseErrorMessage error = case error of
-    (Graphqelm.Http.HttpError err) -> toString err
-    (Graphqelm.Http.GraphqlError _ errs) ->
-        List.foldr (\err txt -> err.message ++ " " ++ txt) "" errs
+    (Graphqelm.Http.HttpError err) -> "Http Error: " ++ (toString err)
+    (Graphqelm.Http.GraphqlError _ errs) -> "Graphql Error: " ++
+        (List.foldr (\err txt -> err.message ++ " " ++ txt) "" errs)
 
 optionFor : Maybe a -> OptionalArgument a
 optionFor a = case a of

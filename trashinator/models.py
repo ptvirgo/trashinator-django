@@ -129,7 +129,7 @@ class TrackingPeriod(models.Model):
         """
         volume = self._volume_per_person_per_week
 
-        if volume == 0:
+        if volume is None or volume == 0:
             return
 
         return round(self._volume_per_person_per_week, 2)
@@ -141,7 +141,7 @@ class TrackingPeriod(models.Model):
         """
         volume = self._volume_per_person_per_week
 
-        if volume == 0:
+        if volume is None or volume == 0:
             return
 
         return round(litres_to_gallons(self._volume_per_person_per_week), 2)
@@ -274,9 +274,15 @@ class Stats(models.Model):
             status__in=["PROGRESS", "COMPLETE"]).annotate(
             trashes=models.Count("trash")).filter(trashes__gte=1)
 
-        count = periods.count()
+        count = 0
+        lpws = []
 
-        lpws = [p.litres_per_person_per_week for p in periods]
+        for p in periods:
+            lpw = p.litres_per_person_per_week
+
+            if lpw is not None:
+                lpws.append(lpw)
+                count += 1
 
         if count > 0:
             self._volume_per_person_per_week = statistics.mean(lpws)
@@ -290,6 +296,7 @@ class Stats(models.Model):
     def create(cls, *args, **kwargs):
         obj, created = cls.objects.get_or_create(pk=1)
         obj.recalculate()
+        obj.save()
         return obj
 
     def save(self, *args, **kwargs):
@@ -303,3 +310,10 @@ class Stats(models.Model):
     def load(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
+
+    def __str__(self):
+        return (
+            "Stats(_volume_per_person_per_week={}, " +
+            "_volume_standard_deviation={}").format(
+            self._volume_per_person_per_week,
+            self._volume_standard_deviation)

@@ -21,18 +21,28 @@ div#trash {
     text-align: center;
 }
 
+div#trash p {
+    margin: 0 auto 1em auto;
+}
+
 p#trashSentence {
     font-family: 'Roboto Slab', serif;
     font-size: 20pt;
 }
 
-p#trashAmount {
+p#inputZero {
+    background-color: #aade87;
+    border-radius: 1em;
+    padding: 1em;
+    width: 30ex;
+}
+    
+p#inputVolume {
     background-color: #aca793;
     border-radius: 1em;
     color: #483737;
-    display: inline-block;
-    margin: 0 1ex;
     padding: 1em;
+    width: 30ex;
 }
 
 div#trash input {
@@ -47,5 +57,17 @@ div#trash input {
 }
 
 div#trash img {
-    vertical-align: middle;
+    float: right;
+    margin-top: .5em;
+}
+
+div.stats div {
+    text-align: left;
+    margin: 0 auto;
+    width: 30ex;
+}
+
+div#trash div.stats div p {
+    font-size: 10pt;
+    margin-bottom: .5em;
 }

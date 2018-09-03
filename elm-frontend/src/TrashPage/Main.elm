@@ -6,8 +6,8 @@ import Date
 
 import Trash.Enum.Metric exposing (Metric (..))
 
-import TrashPage.Model exposing (Model, Jwt (..), emptyPage)
-import TrashPage.Update exposing (Msg, update, lookupPage)
+import TrashPage.Model exposing (..)
+import TrashPage.Update exposing (Msg, update, lookupTrash, lookupStats)
 import TrashPage.View exposing (view)
 
 type alias Flags =
@@ -21,15 +21,20 @@ init flags =
     let readMetric s = case String.toLower s of
             "litres" -> Litres
             _ -> Gallons
+        emptyMeta = emptyPage.meta
+        emptyEntry = emptyPage.entry
         newPage =
             { emptyPage
-            | jwt = Jwt flags.token
-            , timestamp = flags.timestamp
-            , metric = readMetric flags.metric
+            | meta = { emptyMeta | timestamp = flags.timestamp }
+            , entry =
+                { emptyEntry
+                | jwt = Jwt flags.token
+                , metric = readMetric flags.metric
+                , date = relativeDate flags.timestamp Today
+                }
             }
     in
-    ( newPage, lookupPage newPage )
-    
+    ( newPage, Cmd.batch [ lookupTrash newPage, lookupStats newPage ] )
 
 main : Program Flags Model Msg
 main = Html.programWithFlags
