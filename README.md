@@ -14,7 +14,7 @@ I built a simple web-app to let you keep track of your estimated landfill use.
 Can you help out by tracking how much trash you take out for the next 6 - 12
 weeks?
 
-[[https://github.com/ptvirgo/trashinator-django/blob/master/screenshot.png|alt=screenshot]]
+![screenshot](https://github.com/ptvirgo/trashinator-django/blob/master/screenshot.png)
 
 Please get started on the [live
 site](http://django.pablovirgo.com), and keep track for the next few weeks.
