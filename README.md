@@ -20,4 +20,4 @@ Please get started on the [live
 site](http://django.pablovirgo.com), and keep track for the next few weeks.
 That will give me an idea of how much trash a typical household generates, and
 provide a starting point to understand how we can help make Philadelphia on of
-the *least* trash cities in history.
+the *least* trashy cities in history.
