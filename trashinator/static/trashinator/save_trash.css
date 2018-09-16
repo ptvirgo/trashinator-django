@@ -17,7 +17,7 @@ img#mascot {
 
 div#trash {
     margin: 1em auto;
-    width: 50ex;
+    width: 60ex;
     text-align: center;
 }
 
@@ -34,7 +34,7 @@ p#inputZero {
     background-color: #aade87;
     border-radius: 1em;
     padding: 1em;
-    width: 30ex;
+    width: 32ex;
 }
     
 p#inputVolume {
@@ -42,7 +42,7 @@ p#inputVolume {
     border-radius: 1em;
     color: #483737;
     padding: 1em;
-    width: 30ex;
+    width: 32ex;
 }
 
 div#trash input {
@@ -56,6 +56,16 @@ div#trash input {
     max-width: 12ex;
 }
 
+p#inputDay span {
+    display: inline-block;
+    padding: 1em;
+}
+
+p#inputDay span.selected {
+    background-color: #aade87;
+    border-radius: 1em;
+}
+
 div#trash img {
     float: right;
     margin-top: .5em;
@@ -64,7 +74,7 @@ div#trash img {
 div.stats div {
     text-align: left;
     margin: 0 auto;
-    width: 30ex;
+    width: 32ex;
 }
 
 div#trash div.stats div p {

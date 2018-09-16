@@ -20,6 +20,7 @@ gqlHost = "/graphql/"
 
 type Msg =
     ChangeVolume String
+    | ChangeDay WhichDay
     | GotResponse (Result (Graphqelm.Http.Error GqlResponse) GqlResponse)
     | Save
     | SaveZero
@@ -30,6 +31,7 @@ update msg model = case msg of
     (GotResponse r) -> ( gotResponse r model, Cmd.none )
     Save -> ( model, saveTrash model )
     SaveZero -> saveZero model
+    (ChangeDay day) -> changeDay day model
 
 changeVolume : String -> Model -> Model
 changeVolume txt model = if txt == ""
@@ -51,6 +53,11 @@ changeVolume txt model = if txt == ""
                 |> setPageVolume (Just x)
                 |> setPageError Nothing
                 |> setPageChanged True
+
+changeDay : WhichDay -> Model -> ( Model, Cmd Msg )
+changeDay day model =
+    let newModel = model |> setPageDay day
+    in ( newModel, lookupTrash newModel )
 
 gotResponse : Result (Graphqelm.Http.Error GqlResponse) GqlResponse ->
               Model -> Model
@@ -87,7 +94,9 @@ lookupTrash : Model -> Cmd Msg
 lookupTrash model = Query.selection TrashData
     |> with
         ( Query.trash
-        { token = jwtString model.entry.jwt, date = model.entry.date }
+        { token = jwtString model.entry.jwt
+        , date = relativeDate model.meta.timestamp model.opts.day
+        }
         ( parseTrash model.entry.metric )
         )
     |> Graphqelm.Http.queryRequest gqlHost
@@ -113,7 +122,9 @@ saveTrash model = Mutation.selection TrashData
                 , volume = optionFor model.entry.volume
                 }
             )
-            { date = model.entry.date, token = jwtString model.entry.jwt }
+            { date = relativeDate model.meta.timestamp model.opts.day
+            , token = jwtString model.entry.jwt
+            }
             ( parseSaveTrash model.entry.metric )
         )
     |> Graphqelm.Http.mutationRequest gqlHost

@@ -13118,11 +13118,20 @@ var _user$project$TrashPage_Update$lookupTrash = function (model) {
 					_user$project$Trash_Query$trash,
 					{
 						token: _user$project$TrashPage_Model$jwtString(model.entry.jwt),
-						date: model.entry.date
+						date: A2(_user$project$TrashPage_Model$relativeDate, model.meta.timestamp, model.opts.day)
 					},
 					_user$project$TrashPage_Model$parseTrash(model.entry.metric)),
 				_user$project$Trash_Query$selection(_user$project$TrashPage_Model$TrashData))));
 };
+var _user$project$TrashPage_Update$changeDay = F2(
+	function (day, model) {
+		var newModel = A2(_user$project$TrashPage_Model$setPageDay, day, model);
+		return {
+			ctor: '_Tuple2',
+			_0: newModel,
+			_1: _user$project$TrashPage_Update$lookupTrash(newModel)
+		};
+	});
 var _user$project$TrashPage_Update$lookupStats = function (model) {
 	return A2(
 		_dillonkearns$graphqelm$Graphqelm_Http$send,
@@ -13160,7 +13169,7 @@ var _user$project$TrashPage_Update$saveTrash = function (model) {
 							});
 					},
 					{
-						date: model.entry.date,
+						date: A2(_user$project$TrashPage_Model$relativeDate, model.meta.timestamp, model.opts.day),
 						token: _user$project$TrashPage_Model$jwtString(model.entry.jwt)
 					},
 					_user$project$TrashPage_Model$parseSaveTrash(model.entry.metric)),
@@ -13196,18 +13205,32 @@ var _user$project$TrashPage_Update$update = F2(
 					_0: model,
 					_1: _user$project$TrashPage_Update$saveTrash(model)
 				};
-			default:
+			case 'SaveZero':
 				return _user$project$TrashPage_Update$saveZero(model);
+			default:
+				return A2(_user$project$TrashPage_Update$changeDay, _p8._0, model);
 		}
 	});
+var _user$project$TrashPage_Update$ChangeDay = function (a) {
+	return {ctor: 'ChangeDay', _0: a};
+};
 var _user$project$TrashPage_Update$ChangeVolume = function (a) {
 	return {ctor: 'ChangeVolume', _0: a};
 };
 
-var _user$project$TrashPage_View$metricWord = function (metric) {
-	return _elm_lang$core$String$toLower(
-		_elm_lang$core$Basics$toString(metric));
+var _user$project$TrashPage_View$capsFirst = function (s) {
+	var end = A2(_elm_lang$core$String$dropLeft, 1, s);
+	var start = _elm_lang$core$String$toUpper(
+		A2(_elm_lang$core$String$left, 1, s));
+	return A2(_elm_lang$core$Basics_ops['++'], start, end);
 };
+var _user$project$TrashPage_View$metricWord = F2(
+	function (vol, metric) {
+		var plural = _elm_lang$core$String$toLower(
+			_elm_lang$core$Basics$toString(metric));
+		var singular = A2(_elm_lang$core$String$dropRight, 1, plural);
+		return _elm_lang$core$Native_Utils.eq(vol, 1.0) ? singular : plural;
+	});
 var _user$project$TrashPage_View$viewErrors = function (meta) {
 	var _p0 = meta.error;
 	if (_p0.ctor === 'Nothing') {
@@ -13436,7 +13459,7 @@ var _user$project$TrashPage_View$viewStats = F2(
 													' ',
 													A2(
 														_elm_lang$core$Basics_ops['++'],
-														_user$project$TrashPage_View$metricWord(metric),
+														A2(_user$project$TrashPage_View$metricWord, stats.userPerPersonPerWeek, metric),
 														' per person per week'))))),
 									_1: {ctor: '[]'}
 								}),
@@ -13459,7 +13482,7 @@ var _user$project$TrashPage_View$viewStats = F2(
 														' ',
 														A2(
 															_elm_lang$core$Basics_ops['++'],
-															_user$project$TrashPage_View$metricWord(metric),
+															A2(_user$project$TrashPage_View$metricWord, stats.sitePerPersonPerWeek, metric),
 															' per person per week'))))),
 										_1: {ctor: '[]'}
 									}),
@@ -13470,6 +13493,53 @@ var _user$project$TrashPage_View$viewStats = F2(
 				}
 			});
 	});
+var _user$project$TrashPage_View$inputDay = function (opts) {
+	return A2(
+		_elm_lang$html$Html$p,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$id('inputDay'),
+			_1: {ctor: '[]'}
+		},
+		A2(
+			_elm_lang$core$List$map,
+			function (d) {
+				return A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: _elm_lang$core$Native_Utils.eq(opts.day, d) ? _elm_lang$html$Html_Attributes$class('selected') : _elm_lang$html$Html_Attributes$class('unselected'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(
+								_user$project$TrashPage_Update$ChangeDay(d)),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								' ',
+								_user$project$TrashPage_Model$whichDayToString(d))),
+						_1: {ctor: '[]'}
+					});
+			},
+			{
+				ctor: '::',
+				_0: _user$project$TrashPage_Model$Today,
+				_1: {
+					ctor: '::',
+					_0: _user$project$TrashPage_Model$Yesterday,
+					_1: {
+						ctor: '::',
+						_0: _user$project$TrashPage_Model$TwoDaysAgo,
+						_1: {ctor: '[]'}
+					}
+				}
+			}));
+};
 var _user$project$TrashPage_View$inputVolume = function (entry) {
 	return A2(
 		_elm_lang$html$Html$p,
@@ -13500,7 +13570,7 @@ var _user$project$TrashPage_View$inputVolume = function (entry) {
 						' ',
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							_user$project$TrashPage_View$metricWord(entry.metric),
+							A2(_user$project$TrashPage_View$metricWord, 0, entry.metric),
 							' of trash'))),
 				_1: {ctor: '[]'}
 			}
@@ -13530,7 +13600,8 @@ var _user$project$TrashPage_View$inputZero = function (opts) {
 };
 var _user$project$TrashPage_View$trashSentence = F2(
 	function (options, entry) {
-		var when = _user$project$TrashPage_Model$whichDayToString(options.day);
+		var when = _user$project$TrashPage_View$capsFirst(
+			_user$project$TrashPage_Model$whichDayToString(options.day));
 		var howMuch = function () {
 			var _p1 = entry.volume;
 			if (_p1.ctor === 'Nothing') {
@@ -13539,16 +13610,17 @@ var _user$project$TrashPage_View$trashSentence = F2(
 				if (_p1._0 === 0) {
 					return 'nothing';
 				} else {
+					var _p2 = _p1._0;
 					return A2(
 						_elm_lang$core$Basics_ops['++'],
-						_elm_lang$core$Basics$toString(_p1._0),
+						_elm_lang$core$Basics$toString(_p2),
 						A2(
 							_elm_lang$core$Basics_ops['++'],
 							' ',
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								_user$project$TrashPage_View$metricWord(entry.metric),
-								'  of trash ')));
+								A2(_user$project$TrashPage_View$metricWord, _p2, entry.metric),
+								'  of trash')));
 				}
 			}
 		}();
@@ -13564,14 +13636,11 @@ var _user$project$TrashPage_View$trashSentence = F2(
 				_0: _elm_lang$html$Html$text(
 					A2(
 						_elm_lang$core$Basics_ops['++'],
-						'I took out ',
+						when,
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							howMuch,
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								' ',
-								A2(_elm_lang$core$Basics_ops['++'], when, '.'))))),
+							' I took out ',
+							A2(_elm_lang$core$Basics_ops['++'], howMuch, '.')))),
 				_1: {ctor: '[]'}
 			});
 	});
@@ -13624,20 +13693,24 @@ var _user$project$TrashPage_View$view = function (model) {
 			_0: A2(_user$project$TrashPage_View$trashSentence, model.opts, model.entry),
 			_1: {
 				ctor: '::',
-				_0: _user$project$TrashPage_View$inputZero(model.opts),
+				_0: _user$project$TrashPage_View$inputDay(model.opts),
 				_1: {
 					ctor: '::',
-					_0: A2(_user$project$TrashPage_View$saveButton, model.meta, model.entry),
+					_0: _user$project$TrashPage_View$inputZero(model.opts),
 					_1: {
 						ctor: '::',
-						_0: _user$project$TrashPage_View$inputVolume(model.entry),
+						_0: A2(_user$project$TrashPage_View$saveButton, model.meta, model.entry),
 						_1: {
 							ctor: '::',
-							_0: A2(_user$project$TrashPage_View$viewStats, model.entry.metric, model.stats),
+							_0: _user$project$TrashPage_View$inputVolume(model.entry),
 							_1: {
 								ctor: '::',
-								_0: _user$project$TrashPage_View$viewErrors(model.meta),
-								_1: {ctor: '[]'}
+								_0: A2(_user$project$TrashPage_View$viewStats, model.entry.metric, model.stats),
+								_1: {
+									ctor: '::',
+									_0: _user$project$TrashPage_View$viewErrors(model.meta),
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					}

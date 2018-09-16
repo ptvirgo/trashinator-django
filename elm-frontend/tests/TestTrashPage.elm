@@ -13,7 +13,7 @@ import Trash.Enum.Metric exposing (Metric (..))
 
 import TrashPage.Model exposing (..)
 import TrashPage.Update exposing (..)
-import TrashPage.View
+import TrashPage.View exposing (..)
 import TrashPage.Main
 
 testTime : Time.Time
@@ -122,6 +122,14 @@ testChangeVolume = describe "ChangeVolume"
             ( newPage, Cmd.none )
     ]
 
+testChangeDay : Test
+testChangeDay = describe "ChangeDay"
+    [ test "ChangeDay changes the chosen day" <| \_ ->
+        let newPage = testPage |> setPageDay TwoDaysAgo
+            ( res, _) = update (ChangeDay TwoDaysAgo) testPage
+        in Expect.equal res newPage
+    ]
+
 testGql : Test
 testGql = describe "GraphQL helpers"
     [ test "gotGqlResponse handles trash = Nothing" <| \_ ->
@@ -158,4 +166,20 @@ testGql = describe "GraphQL helpers"
                     }
                 }
         in Expect.equal ( gotGqlResponse (StatsData gqlr) testPage ) newPage
+    ]
+
+testViewHelpers : Test
+testViewHelpers = describe "Viewer helpers"
+    [ test "capsFirst handles single word" <| \_ ->
+        Expect.equal (capsFirst "yesterday") "Yesterday"
+    , test "capsFirst handles multiple words" <| \_ ->
+        Expect.equal (capsFirst "two days ago") "Two days ago"
+    , test "metricWord uses singular for 1 gallon" <| \_ ->
+        Expect.equal (metricWord 1 Gallons) "gallon"
+    , test "metricWord uses plural for gallons" <| \_ ->
+        Expect.equal (metricWord 0.5 Gallons) "gallons"
+    , test "metricWord uses singular for 1 litre" <| \_ ->
+        Expect.equal (metricWord 1 Litres) "litre"
+    , test "metricWord uses plural for litres" <| \_ ->
+        Expect.equal (metricWord 2.5 Litres) "litres"
     ]

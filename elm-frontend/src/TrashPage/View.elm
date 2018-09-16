@@ -22,6 +22,7 @@ noSaveButtonIcon = "/static/trashinator/checkmark-faded.svg"
 view : Model -> Html Msg
 view model = div []
     [ trashSentence model.opts model.entry
+    , inputDay model.opts
     , inputZero model.opts
     , saveButton model.meta model.entry
     , inputVolume model.entry
@@ -34,9 +35,11 @@ trashSentence options entry =
     let howMuch = case entry.volume of
             Nothing -> "..."
             (Just 0) -> "nothing"
-            (Just x) -> (toString x) ++ " " ++ (metricWord entry.metric) ++ "  of trash "
-        when = whichDayToString options.day
-    in p [ id "trashSentence" ] [ text <| "I took out " ++ howMuch ++ " " ++ when  ++ "." ]
+            (Just x) -> (toString x) ++ " " ++ (metricWord x entry.metric) ++ "  of trash"
+        when = capsFirst <| whichDayToString options.day
+    in p
+        [ id "trashSentence" ]
+        [ text <| when ++ " I took out " ++ howMuch ++ "." ]
 
 inputZero : TPOptions -> Html Msg
 inputZero opts = p [ id "inputZero", onClick SaveZero ]
@@ -45,8 +48,15 @@ inputZero opts = p [ id "inputZero", onClick SaveZero ]
 inputVolume : TPEntry -> Html Msg
 inputVolume entry = p [ id "inputVolume" ]
     [ input [ placeholder "How many?", onInput ChangeVolume ] []
-    , text <| " " ++ (metricWord entry.metric)  ++ " of trash"
+    , text <| " " ++ (metricWord 0 entry.metric)  ++ " of trash"
     ]
+
+inputDay : TPOptions -> Html Msg
+inputDay opts = p [ id "inputDay" ] <| List.map (\d -> span
+    [ if opts.day == d then ( class "selected" ) else ( class "unselected" )
+    , onClick <| ChangeDay d
+    ]
+    [ text <| " " ++ whichDayToString d ] ) [ Today, Yesterday, TwoDaysAgo ]
 
 saveButton : TPMeta -> TPEntry -> Html Msg
 saveButton meta entry =
@@ -115,12 +125,14 @@ viewStats metric stats =
     , div []
         [ p [ ]
             [ text <| "Your average: " ++ (toString stats.userPerPersonPerWeek)
-                ++ " " ++ metricWord metric ++ " per person per week"
+                ++ " " ++ metricWord stats.userPerPersonPerWeek metric
+                ++ " per person per week"
             ]
         , p
             [ ]
             [ text <| "Site average: " ++ (toString stats.sitePerPersonPerWeek)
-                ++ " " ++ metricWord metric ++ " per person per week"
+                ++ " " ++ metricWord stats.sitePerPersonPerWeek metric
+                ++ " per person per week"
             ]
         ]
     ]
@@ -132,5 +144,14 @@ viewErrors meta = case meta.error of
 
 -- Helpers
 
-metricWord : Metric -> String
-metricWord metric = metric |> toString |> String.toLower
+metricWord : Float -> Metric -> String
+metricWord vol metric =
+    let plural = metric |> toString |> String.toLower
+        singular = String.dropRight 1 plural
+    in if vol == 1.0 then singular else plural
+
+capsFirst : String -> String
+capsFirst s =
+    let start = String.toUpper <| String.left 1 s
+        end = String.dropLeft 1 s
+    in start ++ end
