@@ -125,7 +125,9 @@ testChangeVolume = describe "ChangeVolume"
 testChangeDay : Test
 testChangeDay = describe "ChangeDay"
     [ test "ChangeDay changes the chosen day" <| \_ ->
-        let newPage = testPage |> setPageDay TwoDaysAgo
+        let newPage = testPage
+            |> setPageDay TwoDaysAgo
+            |> setPageVolume Nothing
             ( res, _) = update (ChangeDay TwoDaysAgo) testPage
         in Expect.equal res newPage
     ]

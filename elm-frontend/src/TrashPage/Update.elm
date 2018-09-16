@@ -56,7 +56,9 @@ changeVolume txt model = if txt == ""
 
 changeDay : WhichDay -> Model -> ( Model, Cmd Msg )
 changeDay day model =
-    let newModel = model |> setPageDay day
+    let newModel = model
+        |> setPageDay day
+        |> setPageVolume Nothing
     in ( newModel, lookupTrash newModel )
 
 gotResponse : Result (Graphqelm.Http.Error GqlResponse) GqlResponse ->

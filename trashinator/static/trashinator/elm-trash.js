@@ -13125,7 +13125,10 @@ var _user$project$TrashPage_Update$lookupTrash = function (model) {
 };
 var _user$project$TrashPage_Update$changeDay = F2(
 	function (day, model) {
-		var newModel = A2(_user$project$TrashPage_Model$setPageDay, day, model);
+		var newModel = A2(
+			_user$project$TrashPage_Model$setPageVolume,
+			_elm_lang$core$Maybe$Nothing,
+			A2(_user$project$TrashPage_Model$setPageDay, day, model));
 		return {
 			ctor: '_Tuple2',
 			_0: newModel,
@@ -13506,15 +13509,15 @@ var _user$project$TrashPage_View$inputDay = function (opts) {
 			function (d) {
 				return A2(
 					_elm_lang$html$Html$span,
-					{
+					_elm_lang$core$Native_Utils.eq(opts.day, d) ? {
 						ctor: '::',
-						_0: _elm_lang$core$Native_Utils.eq(opts.day, d) ? _elm_lang$html$Html_Attributes$class('selected') : _elm_lang$html$Html_Attributes$class('unselected'),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Events$onClick(
-								_user$project$TrashPage_Update$ChangeDay(d)),
-							_1: {ctor: '[]'}
-						}
+						_0: _elm_lang$html$Html_Attributes$class('selected'),
+						_1: {ctor: '[]'}
+					} : {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Events$onClick(
+							_user$project$TrashPage_Update$ChangeDay(d)),
+						_1: {ctor: '[]'}
 					},
 					{
 						ctor: '::',

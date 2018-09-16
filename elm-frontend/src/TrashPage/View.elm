@@ -52,10 +52,12 @@ inputVolume entry = p [ id "inputVolume" ]
     ]
 
 inputDay : TPOptions -> Html Msg
-inputDay opts = p [ id "inputDay" ] <| List.map (\d -> span
-    [ if opts.day == d then ( class "selected" ) else ( class "unselected" )
-    , onClick <| ChangeDay d
-    ]
+inputDay opts = p [ id "inputDay" ] <| List.map
+    (\d -> span
+        ( if opts.day == d
+            then [ class "selected" ]
+            else [ onClick <| ChangeDay d ]
+        )
     [ text <| " " ++ whichDayToString d ] ) [ Today, Yesterday, TwoDaysAgo ]
 
 saveButton : TPMeta -> TPEntry -> Html Msg
