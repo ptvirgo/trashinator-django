@@ -1,4 +1,4 @@
-# Just how Trashy are you?
+# Make less trash!
 
 Every year, the City of Philadelphia disposes **1 ton** of waste *per
 resident.* That is ... *impressive.*  The city has *also* made it a goal to
