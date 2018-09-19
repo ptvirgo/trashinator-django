@@ -10,14 +10,13 @@ by 2035.
 How much trash do we generate?  What's normal?  **What's possible?**  I want to
 find out so that we can finally *throw away* the name *"Filthadelphia."*
 
-I built a simple web-app to let you keep track of your estimated landfill use.
-Can you help out by tracking how much trash you take out for the next 6 - 12
-weeks?
+This is a simple web-app to let you keep track of your estimated landfill use.
 
 ![screenshot](https://github.com/ptvirgo/trashinator-django/blob/master/screenshot.png)
 
-Please get started on the [live
-site](http://django.pablovirgo.com), and keep track for the next few weeks.
-That will give me an idea of how much trash a typical household generates, and
-provide a starting point to understand how we can help make Philadelphia one of
-the *least* trashy cities in history.
+Right now it would be especially helpful to have:
+
+- Beta testers & early adopters (just [jump on](https://django.pablovirgo.com/trash/) if you want to help!)
+- Feedback if there are desired features
+- Help with visual design
+- Tips or thoughts from behavior scientists, data scientists, and fellow engineers
